@@ -1,6 +1,7 @@
 #include "Scene.hpp"
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include "Cube.hpp"
 
 void scene::Scene::loadFromJson(const std::string& jsonFilePath) {
   std::ifstream file(jsonFilePath);
@@ -20,8 +21,11 @@ void scene::Scene::loadFromJson(const std::string& jsonFilePath) {
                              shapeData["position"]["z"]);
     raylib::Color color(shapeData["color"]["r"], shapeData["color"]["g"],
                         shapeData["color"]["b"], shapeData["color"]["a"]);
-    std::string name = shapeData.value("name", "Cube");
-    _shapes.push_back(shape::GameShape(width, height, depth, position));
+    std::string name = shapeData.value("name", "Shape");
+    if (name == "Cube") {
+      auto cube = std::make_unique<shape::Cube>(width, height, depth, position);
+      _shapes.push_back(std::move(cube));
+    }
   }
 }
 
@@ -29,17 +33,17 @@ void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
   nlohmann::json jsonData;
   for (const auto& shape : _shapes) {
     nlohmann::json shapeData;
-    shapeData["width"] = shape.getWidth();
-    shapeData["height"] = shape.getHeight();
-    shapeData["depth"] = shape.getDepth();
-    shapeData["position"]["x"] = shape.getPosition().x;
-    shapeData["position"]["y"] = shape.getPosition().y;
-    shapeData["position"]["z"] = shape.getPosition().z;
-    shapeData["color"] = {{"r", shape.getColor().r},
-                          {"g", shape.getColor().g},
-                          {"b", shape.getColor().b},
-                          {"a", shape.getColor().a}};
-    shapeData["name"] = shape.getName();
+    shapeData["width"] = shape->getWidth();
+    shapeData["height"] = shape->getHeight();
+    shapeData["depth"] = shape->getDepth();
+    shapeData["position"]["x"] = shape->getPosition().x;
+    shapeData["position"]["y"] = shape->getPosition().y;
+    shapeData["position"]["z"] = shape->getPosition().z;
+    shapeData["color"] = {{"r", shape->getColor().r},
+                          {"g", shape->getColor().g},
+                          {"b", shape->getColor().b},
+                          {"a", shape->getColor().a}};
+    shapeData["name"] = shape->getName();
     jsonData["shapes"].push_back(shapeData);
   }
 
@@ -53,7 +57,7 @@ void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
 
 void scene::Scene::draw() const {
   for (const auto& shape : _shapes) {
-    shape.draw();
+    shape->draw();
   }
 }
 
@@ -63,10 +67,14 @@ void scene::Scene::setSelectedObject(int index) {
     return;
   }
   for (size_t i = 0; i < _shapes.size(); ++i) {
-    if (i == nbr && !_shapes[i].isSelected()) {
-      _shapes[i].setSelected(true);
-    } else if (_shapes[i].isSelected()) {
-      _shapes[i].setSelected(false);
+    if (i == nbr && !_shapes[i]->isSelected()) {
+      _shapes[i]->setSelected(true);
+    } else if (_shapes[i]->isSelected()) {
+      _shapes[i]->setSelected(false);
     }
   }
+}
+
+void scene::Scene::addShape(std::unique_ptr<shape::IGameShape> shape) {
+  _shapes.push_back(std::move(shape));
 }

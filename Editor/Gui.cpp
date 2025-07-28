@@ -1,4 +1,5 @@
 #include "Gui.hpp"
+#include "Cube.hpp"
 #include "Window.hpp"
 
 ui::Gui::Gui(const int width, const int height, gui::Window &window)
@@ -42,9 +43,9 @@ void ui::Gui::drawInterface() {
 
     if (ImGui::Begin("Hierarchy", &_showHierarchy)) {
       for (size_t i = 0; i < _window.getScene()._shapes.size(); ++i) {
-        const shape::GameShape &shape = _window.getScene()._shapes[i];
+        const auto &shape = _window.getScene()._shapes[i];
         std::string objectName =
-            "Object " + std::to_string(i + 1) + ": " + shape.getName();
+            "Object " + std::to_string(i + 1) + ": " + shape->getName();
 
         if (ImGui::Selectable(objectName.c_str())) {
           _window.getScene().setSelectedObject(i);
@@ -53,8 +54,8 @@ void ui::Gui::drawInterface() {
 
       ImGui::Separator();
       if (ImGui::Button("Add Cube", ImVec2(-1, 0))) {
-        _window.getScene()._shapes.push_back(
-            shape::GameShape(2.0f, 2.0f, 2.0f, raylib::Vector3(10, 0, 0)));
+        _window.getScene().addShape(std::make_unique<shape::Cube>(
+            1.0f, 1.0f, 1.0f, raylib::Vector3(0.0f, 0.5f, 0.0f)));
         _window.getScene().saveToJson("./scene.json");
       }
     }

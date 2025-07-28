@@ -66,8 +66,8 @@ target_include_directories(rlimgui PUBLIC
 target_link_libraries(rlimgui PUBLIC imgui raylib)
 
 add_library(EngineCore
-    Core/GameShape.cpp
     Core/Scene.cpp
+    Core/Cube.cpp
 )
 target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
 
