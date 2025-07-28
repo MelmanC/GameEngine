@@ -18,6 +18,10 @@ namespace ui {
 
       void drawInterface();
 
+      void drawCameraInfo();
+
+      void drawObjectInfo();
+
       bool isMouseInViewport();
 
     private:

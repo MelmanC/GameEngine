@@ -44,8 +44,30 @@ namespace shape {
         _isSelected = isSelected;
       }
 
+      void setPosition(const raylib::Vector3& position) override {
+        _position = position;
+      }
+
+      void setColor(const raylib::Color& color) override {
+        _color = color;
+      }
+
+      void setSize(const raylib::Vector3& size) override {
+        _size = size;
+      }
+
       bool isSelected() const override {
         return _isSelected;
+      }
+
+      void setName(const std::string& name) override {
+        _name = name;
+      }
+      std::string getType() const override {
+        return _type;
+      }
+      void setType(const std::string& type) override {
+        _type = type;
       }
 
     protected:
@@ -54,6 +76,7 @@ namespace shape {
       raylib::Color _color;
       std::string _name;
       bool _isSelected = false;
+      std::string _type;
   };
 
 }  // namespace shape

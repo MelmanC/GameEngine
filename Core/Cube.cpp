@@ -6,6 +6,7 @@ shape::Cube::Cube(float width, float height, float depth,
   _size = raylib::Vector3(width, height, depth);
   _color = raylib::Color::White();
   _name = "Cube";
+  _type = "Cube";
   _isSelected = false;
 }
 

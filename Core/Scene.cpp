@@ -1,5 +1,6 @@
 #include "Scene.hpp"
 #include <fstream>
+#include <memory>
 #include <nlohmann/json.hpp>
 #include "Cube.hpp"
 
@@ -22,8 +23,11 @@ void scene::Scene::loadFromJson(const std::string& jsonFilePath) {
     raylib::Color color(shapeData["color"]["r"], shapeData["color"]["g"],
                         shapeData["color"]["b"], shapeData["color"]["a"]);
     std::string name = shapeData.value("name", "Shape");
-    if (name == "Cube") {
+    std::string type = shapeData.value("type", "Unknown");
+    if (type == "Cube") {
       auto cube = std::make_unique<shape::Cube>(width, height, depth, position);
+      cube->setColor(color);
+      cube->setName(name);
       _shapes.push_back(std::move(cube));
     }
   }
@@ -31,6 +35,7 @@ void scene::Scene::loadFromJson(const std::string& jsonFilePath) {
 
 void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
   nlohmann::json jsonData;
+  jsonData["shapes"] = nlohmann::json::array();
   for (const auto& shape : _shapes) {
     nlohmann::json shapeData;
     shapeData["width"] = shape->getWidth();
@@ -44,6 +49,7 @@ void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
                           {"b", shape->getColor().b},
                           {"a", shape->getColor().a}};
     shapeData["name"] = shape->getName();
+    shapeData["type"] = shape->getType();
     jsonData["shapes"].push_back(shapeData);
   }
 
@@ -73,6 +79,15 @@ void scene::Scene::setSelectedObject(int index) {
       _shapes[i]->setSelected(false);
     }
   }
+}
+
+shape::IGameShape* scene::Scene::getSelectedObject() const {
+  for (const auto& shape : _shapes) {
+    if (shape->isSelected()) {
+      return shape.get();
+    }
+  }
+  return nullptr;
 }
 
 void scene::Scene::addShape(std::unique_ptr<shape::IGameShape> shape) {

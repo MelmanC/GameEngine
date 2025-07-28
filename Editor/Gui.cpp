@@ -1,4 +1,5 @@
 #include "Gui.hpp"
+#include <iostream>
 #include "Cube.hpp"
 #include "Window.hpp"
 
@@ -8,6 +9,70 @@ ui::Gui::Gui(const int width, const int height, gui::Window &window)
       _toolbarPanel(0, 0, width, 40),
       _window(window) {
   rlImGuiSetup(true);
+}
+
+void ui::Gui::drawCameraInfo() {
+  ImGui::Text("Camera Info:");
+  ImGui::Text("Position: %.2f, %.2f, %.2f", _window.getCamera().position.x,
+              _window.getCamera().position.y, _window.getCamera().position.z);
+  ImGui::Text("Target: %.2f, %.2f, %.2f", _window.getCamera().target.x,
+              _window.getCamera().target.y, _window.getCamera().target.z);
+
+  ImGui::Separator();
+  ImGui::Text("Viewport Info:");
+  ImGui::Text("Size: %.0fx%.0f", _window.getViewport().width,
+              _window.getViewport().height);
+  ImGui::Text("Active: %s", _window.isViewportActive() ? "Yes" : "No");
+
+  ImGui::Separator();
+  ImGui::Text("Controls:");
+  ImGui::BulletText("F - Toggle viewport control");
+  ImGui::BulletText("ZQSD - Move camera");
+  ImGui::BulletText("Space/Shift - Move up/down");
+  ImGui::BulletText("ESC - Exit");
+}
+
+void ui::Gui::drawObjectInfo() {
+  auto selectedObject = _window.getScene().getSelectedObject();
+  if (selectedObject) {
+    char name[64];
+    std::strncpy(name, selectedObject->getName().c_str(), sizeof(name) - 1);
+    name[sizeof(name) - 1] = '\0';
+    if (ImGui::InputText("Name", name, sizeof(name))) {
+      selectedObject->setName(name);
+    }
+
+    ImGui::Separator();
+
+    raylib::Vector3 position = selectedObject->getPosition();
+    ImGui::InputFloat3("Position", &position.x);
+    selectedObject->setPosition(position);
+
+    raylib::Color color = selectedObject->getColor();
+    float colorArray[4] = {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
+                           color.a / 255.0f};
+    ImGui::ColorEdit4(
+        "Color", colorArray,
+        ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+    selectedObject->setColor(
+        raylib::Color(static_cast<unsigned char>(colorArray[0] * 255),
+                      static_cast<unsigned char>(colorArray[1] * 255),
+                      static_cast<unsigned char>(colorArray[2] * 255),
+                      static_cast<unsigned char>(colorArray[3] * 255)));
+    ImGui::Separator();
+    float width = selectedObject->getWidth();
+    float height = selectedObject->getHeight();
+    float depth = selectedObject->getDepth();
+
+    ImGui::InputFloat("Width", &width);
+    ImGui::InputFloat("Height", &height);
+    ImGui::InputFloat("Depth", &depth);
+    selectedObject->setSize(raylib::Vector3(width, height, depth));
+
+    if (ImGui::Button("Delete")) {
+      _window.getScene().saveToJson("./scene.json");
+    }
+  }
 }
 
 void ui::Gui::drawInterface() {
@@ -69,25 +134,11 @@ void ui::Gui::drawInterface() {
                              ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Properties", &_showProperties)) {
-      ImGui::Text("Camera Info:");
-      ImGui::Text("Position: %.2f, %.2f, %.2f", _window.getCamera().position.x,
-                  _window.getCamera().position.y,
-                  _window.getCamera().position.z);
-      ImGui::Text("Target: %.2f, %.2f, %.2f", _window.getCamera().target.x,
-                  _window.getCamera().target.y, _window.getCamera().target.z);
-
-      ImGui::Separator();
-      ImGui::Text("Viewport Info:");
-      ImGui::Text("Size: %.0fx%.0f", _window.getViewport().width,
-                  _window.getViewport().height);
-      ImGui::Text("Active: %s", _window.isViewportActive() ? "Yes" : "No");
-
-      ImGui::Separator();
-      ImGui::Text("Controls:");
-      ImGui::BulletText("F - Toggle viewport control");
-      ImGui::BulletText("ZQSD - Move camera");
-      ImGui::BulletText("Space/Shift - Move up/down");
-      ImGui::BulletText("ESC - Exit");
+      if (!_window.getScene().getSelectedObject()) {
+        drawCameraInfo();
+      } else {
+        drawObjectInfo();
+      }
     }
     ImGui::End();
   }
