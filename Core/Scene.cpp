@@ -3,6 +3,9 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include "Cube.hpp"
+#include "Gizmo.hpp"
+#include "Vector3.hpp"
+#include "rlgl.h"
 
 void scene::Scene::loadFromJson(const std::string& jsonFilePath) {
   std::ifstream file(jsonFilePath);
@@ -64,6 +67,74 @@ void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
 void scene::Scene::draw() const {
   for (const auto& shape : _shapes) {
     shape->draw();
+  }
+}
+
+void scene::Scene::drawGizmo() const {
+  auto selectedObject = getSelectedObject();
+  if (selectedObject) {
+    _gizmo.drawGizmo(selectedObject->getPosition());
+  }
+}
+
+void scene::Scene::updateGizmo(const raylib::Camera3D& camera,
+                               const raylib::Vector2& mousePos) {
+  auto selectedObject = getSelectedObject();
+  if (!selectedObject) {
+    _gizmo.setSelectedAxis(gizmo::GizmoAxis::NONE);
+    return;
+  }
+
+  if (!_isDragging) {
+    gizmo::GizmoAxis hoveredAxis =
+        _gizmo.getHoveredAxis(selectedObject->getPosition(), camera, mousePos);
+    _gizmo.setSelectedAxis(hoveredAxis);
+  }
+}
+
+void scene::Scene::handleGizmoInteraction(const raylib::Vector2& mousePos,
+                                          bool isMousePressed,
+                                          bool isMouseDown) {
+  auto selectedObject = getSelectedObject();
+  if (!selectedObject)
+    return;
+
+  if (isMousePressed && _gizmo.getSelectedAxis() != gizmo::GizmoAxis::NONE) {
+    _isDragging = true;
+    _lastMousePos = mousePos;
+    _dragStartPos = selectedObject->getPosition();
+  }
+
+  if (_isDragging && isMouseDown) {
+    raylib::Vector2 mouseDelta = Vector2Subtract(mousePos, _lastMousePos);
+
+    float sensitivity = 0.02f;
+    raylib::Vector3 movement = {0, 0, 0};
+
+    if (_gizmo.getMode() == gizmo::GizmoType::TRANSLATE) {
+      switch (_gizmo.getSelectedAxis()) {
+        case gizmo::GizmoAxis::X_AXIS:
+          movement.x = mouseDelta.x * sensitivity;
+          break;
+        case gizmo::GizmoAxis::Y_AXIS:
+          movement.y = -mouseDelta.y * sensitivity;
+          break;
+        case gizmo::GizmoAxis::Z_AXIS:
+          movement.z = -mouseDelta.x * sensitivity;
+          break;
+        default:
+          break;
+      }
+    }
+
+    raylib::Vector3 newPosition =
+        Vector3Add(selectedObject->getPosition(), movement);
+    selectedObject->setPosition(newPosition);
+    _lastMousePos = mousePos;
+  }
+
+  if (!isMouseDown) {
+    _isDragging = false;
   }
 }
 
