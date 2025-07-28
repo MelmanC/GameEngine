@@ -15,13 +15,11 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Assets
 )
 
-# include_directories(${CMAKE_SOURCE_DIR}/Core)
-# include_directories(${CMAKE_SOURCE_DIR}/Assets)
-
 find_package(raylib QUIET)
 if(NOT raylib_FOUND)
     message(FATAL_ERROR "raylib not found")
 endif()
+
 find_package(raylib_cpp QUIET)
 if (NOT raylib_cpp_FOUND)
     include(FetchContent)
@@ -32,42 +30,56 @@ if (NOT raylib_cpp_FOUND)
     )
     FetchContent_MakeAvailable(raylib_cpp)
 endif()
+
 find_package(nlohmann_json 3.12.0 REQUIRED)
 if(NOT nlohmann_json_FOUND)
     message(FATAL_ERROR "nlohmann_json not found")
 endif()
+
 FetchContent_Declare(imgui_external
-	URL https://github.com/ocornut/imgui/archive/refs/tags/v1.90.8.tar.gz
-	EXCLUDE_FROM_ALL
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG docking
 )
 FetchContent_MakeAvailable(imgui_external)
 
+FetchContent_Declare(rlimgui_external
+    GIT_REPOSITORY https://github.com/raylib-extras/rlImGui.git
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(rlimgui_external)
+
 add_library(imgui
-	${imgui_external_SOURCE_DIR}/imgui.cpp
-	${imgui_external_SOURCE_DIR}/imgui_draw.cpp
-	${imgui_external_SOURCE_DIR}/imgui_tables.cpp
-	${imgui_external_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_external_SOURCE_DIR}/imgui.cpp
+    ${imgui_external_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_external_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_external_SOURCE_DIR}/imgui_widgets.cpp
 )
 target_include_directories(imgui PUBLIC ${imgui_external_SOURCE_DIR})
+
+add_library(rlimgui
+    ${rlimgui_external_SOURCE_DIR}/rlImGui.cpp
+)
+target_include_directories(rlimgui PUBLIC 
+    ${rlimgui_external_SOURCE_DIR}
+    ${imgui_external_SOURCE_DIR}
+)
+target_link_libraries(rlimgui PUBLIC imgui raylib)
 
 add_library(EngineCore
     Core/GameShape.cpp
     Core/Scene.cpp
 )
-target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui)
+target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
 
 add_executable(EditorApp
     Editor/main.cpp
     Editor/Window.cpp
+    Editor/Gui.cpp
 )
-target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore imgui)
+target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore imgui rlimgui)
 
+# Runtime (commented out)
 # add_executable(Runtime
 #     Runtime/main.cpp
 # )
 # target_link_libraries(Runtime EngineCore raylib)
-
-if(UNIX AND NOT APPLE)
-  target_link_libraries(EditorApp m pthread dl rt X11)
-    target_link_libraries(Runtime m pthread dl rt X11)
-endif()
