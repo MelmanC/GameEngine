@@ -18,6 +18,9 @@ void scene::Scene::loadFromJson(const std::string& jsonFilePath) {
     raylib::Vector3 position(shapeData["position"]["x"],
                              shapeData["position"]["y"],
                              shapeData["position"]["z"]);
+    raylib::Color color(shapeData["color"]["r"], shapeData["color"]["g"],
+                        shapeData["color"]["b"], shapeData["color"]["a"]);
+    std::string name = shapeData.value("name", "Cube");
     _shapes.push_back(shape::GameShape(width, height, depth, position));
   }
 }
@@ -32,6 +35,11 @@ void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
     shapeData["position"]["x"] = shape.getPosition().x;
     shapeData["position"]["y"] = shape.getPosition().y;
     shapeData["position"]["z"] = shape.getPosition().z;
+    shapeData["color"] = {{"r", shape.getColor().r},
+                          {"g", shape.getColor().g},
+                          {"b", shape.getColor().b},
+                          {"a", shape.getColor().a}};
+    shapeData["name"] = shape.getName();
     jsonData["shapes"].push_back(shapeData);
   }
 
@@ -40,11 +48,25 @@ void scene::Scene::saveToJson(const std::string& jsonFilePath) const {
     throw std::runtime_error("Could not open JSON file for writing: " +
                              jsonFilePath);
   }
-  file << jsonData.dump(4);
+  file << jsonData.dump(2);
 }
 
 void scene::Scene::draw() const {
   for (const auto& shape : _shapes) {
     shape.draw();
+  }
+}
+
+void scene::Scene::setSelectedObject(int index) {
+  size_t nbr = static_cast<size_t>(index);
+  if (index < 0 || nbr >= _shapes.size()) {
+    return;
+  }
+  for (size_t i = 0; i < _shapes.size(); ++i) {
+    if (i == nbr && !_shapes[i].isSelected()) {
+      _shapes[i].setSelected(true);
+    } else if (_shapes[i].isSelected()) {
+      _shapes[i].setSelected(false);
+    }
   }
 }

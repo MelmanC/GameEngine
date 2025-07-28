@@ -36,18 +36,31 @@ find_package(nlohmann_json 3.12.0 REQUIRED)
 if(NOT nlohmann_json_FOUND)
     message(FATAL_ERROR "nlohmann_json not found")
 endif()
+FetchContent_Declare(imgui_external
+	URL https://github.com/ocornut/imgui/archive/refs/tags/v1.90.8.tar.gz
+	EXCLUDE_FROM_ALL
+)
+FetchContent_MakeAvailable(imgui_external)
+
+add_library(imgui
+	${imgui_external_SOURCE_DIR}/imgui.cpp
+	${imgui_external_SOURCE_DIR}/imgui_draw.cpp
+	${imgui_external_SOURCE_DIR}/imgui_tables.cpp
+	${imgui_external_SOURCE_DIR}/imgui_widgets.cpp
+)
+target_include_directories(imgui PUBLIC ${imgui_external_SOURCE_DIR})
 
 add_library(EngineCore
     Core/GameShape.cpp
     Core/Scene.cpp
 )
-target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json)
+target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui)
 
 add_executable(EditorApp
     Editor/main.cpp
     Editor/Window.cpp
 )
-target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore)
+target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore imgui)
 
 # add_executable(Runtime
 #     Runtime/main.cpp

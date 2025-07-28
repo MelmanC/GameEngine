@@ -14,5 +14,6 @@ namespace scene {
       void loadFromJson(const std::string& jsonFilePath);
       void saveToJson(const std::string& jsonFilePath) const;
       void draw() const;
+      void setSelectedObject(int index);
   };
 }  // namespace scene

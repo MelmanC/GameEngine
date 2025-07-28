@@ -3,6 +3,7 @@
 #include <raylib.h>
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
+#include "Rectangle.hpp"
 #include "Scene.hpp"
 
 namespace gui {
@@ -17,11 +18,15 @@ namespace gui {
 
       void draw();
 
-      void drawCamera();
-
       void updateCamera();
 
       void handleInput();
+
+      void drawInterface();
+
+      void drawViewport();
+
+      bool isMouseInViewport();
 
     private:
       int _width;
@@ -31,6 +36,13 @@ namespace gui {
       raylib::Window _window;
       scene::Scene _scene;
       raylib::Camera3D _camera;
+
+      raylib::Rectangle _viewport;
+      bool _isViewportActive = false;
+
+      raylib::Rectangle _hierarchyPanel;
+      raylib::Rectangle _propertiesPanel;
+      raylib::Rectangle _toolbarPanel;
   };
 
 }  // namespace gui
