@@ -2,6 +2,7 @@
 
 #include <raylib.h>
 #include <raylib-cpp.hpp>
+#include "IGameShape.hpp"
 
 namespace scene {
   class Scene;
@@ -32,6 +33,14 @@ namespace gizmo {
       GizmoAxis getHoveredAxis(const raylib::Vector3& position,
                                const raylib::Camera3D& camera,
                                const raylib::Vector2& mousePos) const;
+
+      void update(shape::IGameShape* selectedObject,
+                  const raylib::Camera3D& camera,
+                  const raylib::Vector2& mousePos);
+
+      void handleInteraction(shape::IGameShape* selectedObject,
+                             const raylib::Vector2& mousePos,
+                             bool isMousePressed, bool isMouseDown);
 
       void setSize(float size) {
         _size = size;
@@ -73,6 +82,10 @@ namespace gizmo {
       float _size = 1.5f;
       float _cubeSize = 0.2f;
       float _lineThickness = 0.05f;
+
+      bool _isDragging = false;
+      raylib::Vector2 _lastMousePos;
+      raylib::Vector3 _dragStartPos;
   };
 
 }  // namespace gizmo

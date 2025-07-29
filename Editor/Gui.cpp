@@ -1,5 +1,4 @@
 #include "Gui.hpp"
-#include <iostream>
 #include "Cube.hpp"
 #include "Window.hpp"
 
@@ -70,7 +69,7 @@ void ui::Gui::drawObjectInfo() {
     selectedObject->setSize(raylib::Vector3(width, height, depth));
 
     if (ImGui::Button("Delete")) {
-      _window.getScene().saveToJson("./scene.json");
+      _window.getScene().save("./scene.json");
     }
   }
 }
@@ -83,7 +82,7 @@ void ui::Gui::drawInterface() {
       if (ImGui::MenuItem("Open", "Ctrl+O")) {
       }
       if (ImGui::MenuItem("Save", "Ctrl+S")) {
-        _window.getScene().saveToJson("./scene.json");
+        _window.getScene().save("./scene.json");
       }
       ImGui::Separator();
       if (ImGui::MenuItem("Exit")) {
@@ -107,8 +106,8 @@ void ui::Gui::drawInterface() {
                              ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Hierarchy", &_showHierarchy)) {
-      for (size_t i = 0; i < _window.getScene()._shapes.size(); ++i) {
-        const auto &shape = _window.getScene()._shapes[i];
+      for (size_t i = 0; i < _window.getScene().getShapes().size(); ++i) {
+        const auto &shape = _window.getScene().getShapes()[i];
         std::string objectName =
             "Object " + std::to_string(i + 1) + ": " + shape->getName();
 
@@ -121,7 +120,7 @@ void ui::Gui::drawInterface() {
       if (ImGui::Button("Add Cube", ImVec2(-1, 0))) {
         _window.getScene().addShape(std::make_unique<shape::Cube>(
             1.0f, 1.0f, 1.0f, raylib::Vector3(0.0f, 0.5f, 0.0f)));
-        _window.getScene().saveToJson("./scene.json");
+        _window.getScene().save("./scene.json");
       }
     }
     ImGui::End();

@@ -69,6 +69,7 @@ add_library(EngineCore
     Core/Scene.cpp
     Core/Cube.cpp
     Core/Gizmo.cpp
+    Core/JsonHandler.cpp
 )
 target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
 

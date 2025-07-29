@@ -24,7 +24,7 @@ gui::Window::Window(int width, int height, const char *title)
   _camera.fovy = 45.0f;
   _camera.projection = CAMERA_PERSPECTIVE;
 
-  _scene.loadFromJson("./scene.json");
+  _scene.load("./scene.json");
 }
 
 gui::Window::~Window() {
