@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <rlImGui.h>
 #include <raylib-cpp.hpp>
+#include "Camera3D.hpp"
 
 namespace gui {
   class Window;
@@ -12,17 +13,15 @@ namespace gui {
 namespace ui {
   class Gui {
     public:
-      Gui(const int width, const int height, gui::Window &window);
+      Gui(const int width, const int height);
 
       ~Gui() = default;
 
-      void drawInterface();
+      void drawInterface(camera::Camera3D &camera, gui::Window &window);
 
-      void drawCameraInfo();
+      void drawCameraInfo(camera::Camera3D &camera, gui::Window &window);
 
-      void drawObjectInfo();
-
-      bool isMouseInViewport();
+      void drawObjectInfo(gui::Window &window);
 
     private:
       raylib::Rectangle _hierarchyPanel;
@@ -31,6 +30,5 @@ namespace ui {
 
       bool _showHierarchy = true;
       bool _showProperties = true;
-      gui::Window &_window;
   };
 }  // namespace ui

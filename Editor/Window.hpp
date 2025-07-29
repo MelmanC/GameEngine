@@ -4,6 +4,7 @@
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
 #include "Gui.hpp"
+#include "InputManager.hpp"
 #include "Rectangle.hpp"
 #include "Scene.hpp"
 
@@ -19,9 +20,7 @@ namespace gui {
 
       void draw();
 
-      void updateCamera();
-
-      void handleInput();
+      void update();
 
       void drawViewport();
 
@@ -29,10 +28,6 @@ namespace gui {
 
       raylib::Rectangle getViewport() const {
         return _viewport;
-      }
-
-      raylib::Camera3D& getCamera() {
-        return _camera;
       }
 
       scene::Scene& getScene() {
@@ -69,8 +64,9 @@ namespace gui {
       const char* _title;
       bool _isRunning;
       raylib::Window _window;
+      input::InputManager _inputManager;
       scene::Scene _scene;
-      raylib::Camera3D _camera;
+      camera::Camera3D _camera;
 
       raylib::Rectangle _viewport;
       bool _isViewportActive = false;
