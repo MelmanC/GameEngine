@@ -1,28 +1,26 @@
 #include "Gui.hpp"
-#include <iostream>
 #include "Cube.hpp"
 #include "Window.hpp"
 
-ui::Gui::Gui(const int width, const int height, gui::Window &window)
+ui::Gui::Gui(const int width, const int height)
     : _hierarchyPanel(0, 40, 250, height - 40),
       _propertiesPanel(width - 300, 40, 300, height - 40),
-      _toolbarPanel(0, 0, width, 40),
-      _window(window) {
+      _toolbarPanel(0, 0, width, 40) {
   rlImGuiSetup(true);
 }
 
-void ui::Gui::drawCameraInfo() {
+void ui::Gui::drawCameraInfo(camera::Camera3D &camera, gui::Window &window) {
   ImGui::Text("Camera Info:");
-  ImGui::Text("Position: %.2f, %.2f, %.2f", _window.getCamera().position.x,
-              _window.getCamera().position.y, _window.getCamera().position.z);
-  ImGui::Text("Target: %.2f, %.2f, %.2f", _window.getCamera().target.x,
-              _window.getCamera().target.y, _window.getCamera().target.z);
+  ImGui::Text("Position: %.2f, %.2f, %.2f", camera.getCamera().position.x,
+              camera.getCamera().position.y, camera.getCamera().position.z);
+  ImGui::Text("Target: %.2f, %.2f, %.2f", camera.getCamera().target.x,
+              camera.getCamera().target.y, camera.getCamera().target.z);
 
   ImGui::Separator();
   ImGui::Text("Viewport Info:");
-  ImGui::Text("Size: %.0fx%.0f", _window.getViewport().width,
-              _window.getViewport().height);
-  ImGui::Text("Active: %s", _window.isViewportActive() ? "Yes" : "No");
+  ImGui::Text("Size: %.0fx%.0f", window.getViewport().width,
+              window.getViewport().height);
+  ImGui::Text("Active: %s", window.isViewportActive() ? "Yes" : "No");
 
   ImGui::Separator();
   ImGui::Text("Controls:");
@@ -32,8 +30,8 @@ void ui::Gui::drawCameraInfo() {
   ImGui::BulletText("ESC - Exit");
 }
 
-void ui::Gui::drawObjectInfo() {
-  auto selectedObject = _window.getScene().getSelectedObject();
+void ui::Gui::drawObjectInfo(gui::Window &window) {
+  auto selectedObject = window.getScene().getSelectedObject();
   if (selectedObject) {
     char name[64];
     std::strncpy(name, selectedObject->getName().c_str(), sizeof(name) - 1);
@@ -70,12 +68,12 @@ void ui::Gui::drawObjectInfo() {
     selectedObject->setSize(raylib::Vector3(width, height, depth));
 
     if (ImGui::Button("Delete")) {
-      _window.getScene().saveToJson("./scene.json");
+      window.getScene().save("./scene.json");
     }
   }
 }
 
-void ui::Gui::drawInterface() {
+void ui::Gui::drawInterface(camera::Camera3D &camera, gui::Window &window) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("New", "Ctrl+N")) {
@@ -83,11 +81,11 @@ void ui::Gui::drawInterface() {
       if (ImGui::MenuItem("Open", "Ctrl+O")) {
       }
       if (ImGui::MenuItem("Save", "Ctrl+S")) {
-        _window.getScene().saveToJson("./scene.json");
+        window.getScene().save("./scene.json");
       }
       ImGui::Separator();
       if (ImGui::MenuItem("Exit")) {
-        _window.setRunning(false);
+        window.setRunning(false);
       }
       ImGui::EndMenu();
     }
@@ -103,41 +101,41 @@ void ui::Gui::drawInterface() {
 
   if (_showHierarchy) {
     ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(250, _window.getHeight() - 20),
+    ImGui::SetNextWindowSize(ImVec2(250, window.getHeight() - 20),
                              ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Hierarchy", &_showHierarchy)) {
-      for (size_t i = 0; i < _window.getScene()._shapes.size(); ++i) {
-        const auto &shape = _window.getScene()._shapes[i];
+      for (size_t i = 0; i < window.getScene().getShapes().size(); ++i) {
+        const auto &shape = window.getScene().getShapes()[i];
         std::string objectName =
             "Object " + std::to_string(i + 1) + ": " + shape->getName();
 
         if (ImGui::Selectable(objectName.c_str())) {
-          _window.getScene().setSelectedObject(i);
+          window.getScene().setSelectedObject(i);
         }
       }
 
       ImGui::Separator();
       if (ImGui::Button("Add Cube", ImVec2(-1, 0))) {
-        _window.getScene().addShape(std::make_unique<shape::Cube>(
+        window.getScene().addShape(std::make_unique<shape::Cube>(
             1.0f, 1.0f, 1.0f, raylib::Vector3(0.0f, 0.5f, 0.0f)));
-        _window.getScene().saveToJson("./scene.json");
+        window.getScene().save("./scene.json");
       }
     }
     ImGui::End();
   }
 
   if (_showProperties) {
-    ImGui::SetNextWindowPos(ImVec2(_window.getWidth() - 300, 20),
+    ImGui::SetNextWindowPos(ImVec2(window.getWidth() - 300, 20),
                             ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(300, _window.getHeight() - 20),
+    ImGui::SetNextWindowSize(ImVec2(300, window.getHeight() - 20),
                              ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Properties", &_showProperties)) {
-      if (!_window.getScene().getSelectedObject()) {
-        drawCameraInfo();
+      if (!window.getScene().getSelectedObject()) {
+        drawCameraInfo(camera, window);
       } else {
-        drawObjectInfo();
+        drawObjectInfo(window);
       }
     }
     ImGui::End();

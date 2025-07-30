@@ -12,9 +12,6 @@ shape::Cube::Cube(float width, float height, float depth,
 
 void shape::Cube::draw() const {
   DrawCube(_position, _size.x, _size.y, _size.z, _color);
-  if (_isSelected) {
+  if (_isSelected)
     DrawCubeWires(_position, _size.x, _size.y, _size.z, raylib::Color::Red());
-  } else {
-    DrawCubeWires(_position, _size.x, _size.y, _size.z, raylib::Color::Black());
-  }
 }

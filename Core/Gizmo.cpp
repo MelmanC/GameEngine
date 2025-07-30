@@ -76,3 +76,63 @@ gizmo::GizmoAxis gizmo::Gizmo::getHoveredAxis(
   }
   return GizmoAxis::NONE;
 }
+
+void gizmo::Gizmo::update(shape::IGameShape* selectedObject,
+                          const raylib::Camera3D& camera,
+                          const raylib::Vector2& mousePos) {
+  if (!selectedObject) {
+    setSelectedAxis(GizmoAxis::NONE);
+    return;
+  }
+
+  if (!_isDragging) {
+    GizmoAxis hoveredAxis =
+        getHoveredAxis(selectedObject->getPosition(), camera, mousePos);
+    setSelectedAxis(hoveredAxis);
+  }
+}
+
+void gizmo::Gizmo::handleInteraction(shape::IGameShape* selectedObject,
+                                     const raylib::Vector2& mousePos,
+                                     bool isMousePressed, bool isMouseDown) {
+  if (!selectedObject)
+    return;
+
+  if (isMousePressed && getSelectedAxis() != GizmoAxis::NONE) {
+    _isDragging = true;
+    _lastMousePos = mousePos;
+    _dragStartPos = selectedObject->getPosition();
+  }
+
+  if (_isDragging && isMouseDown) {
+    raylib::Vector2 mouseDelta = Vector2Subtract(mousePos, _lastMousePos);
+
+    float sensitivity = 0.02f;
+    raylib::Vector3 movement = {0, 0, 0};
+
+    if (getMode() == GizmoType::TRANSLATE) {
+      switch (getSelectedAxis()) {
+        case GizmoAxis::X_AXIS:
+          movement.x = mouseDelta.x * sensitivity;
+          break;
+        case GizmoAxis::Y_AXIS:
+          movement.y = -mouseDelta.y * sensitivity;
+          break;
+        case GizmoAxis::Z_AXIS:
+          movement.z = -mouseDelta.x * sensitivity;
+          break;
+        default:
+          break;
+      }
+    }
+
+    raylib::Vector3 newPosition =
+        Vector3Add(selectedObject->getPosition(), movement);
+    selectedObject->setPosition(newPosition);
+    _lastMousePos = mousePos;
+  }
+
+  if (!isMouseDown) {
+    _isDragging = false;
+  }
+}
