@@ -16,7 +16,12 @@ namespace camera {
         return _camera;
       }
 
+      void handleMovementInput(int forwardKey, int backwardKey, int leftKey,
+                               int rightKey);
+      void handleMouseLook();
+
     private:
+      float _speed = 5.0f;
       raylib::Camera3D _camera;
   };
 }  // namespace camera

@@ -29,6 +29,7 @@ namespace shape {
       virtual void setType(const std::string& type) = 0;
       virtual bool isVisible() const = 0;
       virtual void setVisible(bool visible) = 0;
+      virtual raylib::BoundingBox getBoundingBox() const = 0;
 
       virtual bool isSelected() const = 0;
   };

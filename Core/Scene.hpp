@@ -14,6 +14,7 @@ namespace scene {
       void draw() const;
       void setSelectedObject(int index);
       void addShape(std::unique_ptr<shape::IGameShape> shape);
+      void removeShape(int index);
       shape::IGameShape* getSelectedObject() const;
       void drawGizmo() const;
 

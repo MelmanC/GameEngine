@@ -7,8 +7,8 @@
 #include "Camera3D.hpp"
 #include "IGameShape.hpp"
 
-namespace gui {
-  class Window;
+namespace app {
+  class Application;
 }
 
 namespace ui {
@@ -18,12 +18,12 @@ namespace ui {
 
       ~Gui() = default;
 
-      void drawInterface(camera::Camera3D &camera, gui::Window &window);
+      void drawInterface(camera::Camera3D &camera, app::Application &app);
 
     private:
-      void drawCameraInfo(camera::Camera3D &camera, gui::Window &window);
+      void drawCameraInfo(camera::Camera3D &camera, app::Application &app);
 
-      void drawObjectInfo(gui::Window &window);
+      void drawObjectInfo(app::Application &app);
 
       void guiAlign(const char *label);
 
@@ -32,6 +32,12 @@ namespace ui {
       void drawTransformInfos(shape::IGameShape *selectedObject);
 
       void drawMaterialsInfos(shape::IGameShape *selectedObject);
+
+      void drawMainMenuBar(app::Application &app);
+
+      void drawHierarchyPanel(app::Application &app);
+
+      void drawPropertiesPanel(camera::Camera3D &camera, app::Application &app);
 
       raylib::Rectangle _hierarchyPanel;
       raylib::Rectangle _propertiesPanel;

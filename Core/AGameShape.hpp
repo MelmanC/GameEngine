@@ -76,6 +76,11 @@ namespace shape {
         _visible = visible;
       }
 
+      raylib::BoundingBox getBoundingBox() const override {
+        return raylib::BoundingBox(_position - _size / 2.0f,
+                                   _position + _size / 2.0f);
+      }
+
     protected:
       raylib::Vector3 _position;
       raylib::Vector3 _size;

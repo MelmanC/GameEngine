@@ -57,3 +57,10 @@ shape::IGameShape* scene::Scene::getSelectedObject() const {
 void scene::Scene::addShape(std::unique_ptr<shape::IGameShape> shape) {
   _shapes.push_back(std::move(shape));
 }
+
+void scene::Scene::removeShape(int index) {
+  if (index < 0 || static_cast<size_t>(index) >= _shapes.size()) {
+    return;
+  }
+  _shapes.erase(_shapes.begin() + index);
+}

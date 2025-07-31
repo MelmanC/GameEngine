@@ -81,6 +81,9 @@ add_executable(EditorApp
     Editor/Window.cpp
     Editor/Gui.cpp
     Editor/InputManager.cpp
+    Editor/Renderer.cpp
+    Editor/ViewportManager.cpp
+    Editor/Application.cpp
 )
 target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore imgui rlimgui)
 
