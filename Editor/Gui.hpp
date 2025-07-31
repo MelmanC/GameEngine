@@ -5,6 +5,7 @@
 #include <rlImGui.h>
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
+#include "IGameShape.hpp"
 
 namespace gui {
   class Window;
@@ -19,16 +20,27 @@ namespace ui {
 
       void drawInterface(camera::Camera3D &camera, gui::Window &window);
 
+    private:
       void drawCameraInfo(camera::Camera3D &camera, gui::Window &window);
 
       void drawObjectInfo(gui::Window &window);
 
-    private:
+      void guiAlign(const char *label);
+
+      void drawEntitiesInfos(shape::IGameShape *selectedObject);
+
+      void drawTransformInfos(shape::IGameShape *selectedObject);
+
+      void drawMaterialsInfos(shape::IGameShape *selectedObject);
+
       raylib::Rectangle _hierarchyPanel;
       raylib::Rectangle _propertiesPanel;
       raylib::Rectangle _toolbarPanel;
 
       bool _showHierarchy = true;
       bool _showProperties = true;
+      bool _showEntities = true;
+      bool _showTransform = true;
+      bool _showMaterials = true;
   };
 }  // namespace ui

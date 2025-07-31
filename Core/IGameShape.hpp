@@ -27,6 +27,8 @@ namespace shape {
       virtual void setName(const std::string& name) = 0;
       virtual std::string getType() const = 0;
       virtual void setType(const std::string& type) = 0;
+      virtual bool isVisible() const = 0;
+      virtual void setVisible(bool visible) = 0;
 
       virtual bool isSelected() const = 0;
   };

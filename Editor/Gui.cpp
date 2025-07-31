@@ -1,6 +1,7 @@
 #include "Gui.hpp"
 #include "Cube.hpp"
 #include "Window.hpp"
+#include "imgui.h"
 
 ui::Gui::Gui(const int width, const int height)
     : _hierarchyPanel(0, 40, 250, height - 40),
@@ -30,46 +31,84 @@ void ui::Gui::drawCameraInfo(camera::Camera3D &camera, gui::Window &window) {
   ImGui::BulletText("ESC - Exit");
 }
 
-void ui::Gui::drawObjectInfo(gui::Window &window) {
-  auto selectedObject = window.getScene().getSelectedObject();
-  if (selectedObject) {
+void ui::Gui::guiAlign(const char *label) {
+  ImGui::TableNextRow();
+  ImGui::TableNextColumn();
+  ImGui::AlignTextToFramePadding();
+  ImGui::Text("%s", label);
+  ImGui::TableNextColumn();
+  ImGui::SetNextItemWidth(-1);
+}
+
+void ui::Gui::drawEntitiesInfos(shape::IGameShape *selectedObject) {
+  if (ImGui::CollapsingHeader(
+          "Entity Info", _showEntities ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
     char name[64];
     std::strncpy(name, selectedObject->getName().c_str(), sizeof(name) - 1);
     name[sizeof(name) - 1] = '\0';
-    if (ImGui::InputText("Name", name, sizeof(name))) {
+
+    ImGui::Text("Name");
+    ImGui::SameLine(80);
+    ImGui::SetNextItemWidth(-1);
+    if (ImGui::InputText("##EntityName", name, sizeof(name))) {
       selectedObject->setName(name);
     }
 
-    ImGui::Separator();
+    ImGui::Text("Type");
+    ImGui::SameLine(80);
+    ImGui::Text("%s", selectedObject->getType().c_str());
 
+    bool objectVisible = selectedObject->isVisible();
+    ImGui::Text("Visible");
+    ImGui::SameLine(80);
+    ImGui::SetNextItemWidth(-1);
+    if (ImGui::Checkbox("##Visible", &objectVisible)) {
+      selectedObject->setVisible(!selectedObject->isVisible());
+    }
+    ImGui::Spacing();
+  }
+}
+
+void ui::Gui::drawTransformInfos(shape::IGameShape *selectedObject) {
+  if (ImGui::CollapsingHeader(
+          "Transform Info",
+          _showTransform ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
     raylib::Vector3 position = selectedObject->getPosition();
-    ImGui::InputFloat3("Position", &position.x);
+    ImGui::Text("Position");
+    ImGui::SameLine(80);
+    ImGui::InputFloat3("##Position", &position.x);
     selectedObject->setPosition(position);
 
+    raylib::Vector3 scale = selectedObject->getSize();
+    ImGui::Text("Scale");
+    ImGui::SameLine(80);
+    ImGui::InputFloat3("##Scale", &scale.x);
+    selectedObject->setSize(scale);
+
+    ImGui::Spacing();
+  }
+}
+
+void ui::Gui::drawMaterialsInfos(shape::IGameShape *selectedObject) {
+  if (ImGui::CollapsingHeader(
+          "Materials Info",
+          _showMaterials ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
     raylib::Color color = selectedObject->getColor();
     float colorArray[4] = {color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,
                            color.a / 255.0f};
+
+    ImGui::Text("Color");
+    ImGui::SameLine(80);
     ImGui::ColorEdit4(
-        "Color", colorArray,
+        "##Color", colorArray,
         ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
     selectedObject->setColor(
         raylib::Color(static_cast<unsigned char>(colorArray[0] * 255),
                       static_cast<unsigned char>(colorArray[1] * 255),
                       static_cast<unsigned char>(colorArray[2] * 255),
                       static_cast<unsigned char>(colorArray[3] * 255)));
-    ImGui::Separator();
-    float width = selectedObject->getWidth();
-    float height = selectedObject->getHeight();
-    float depth = selectedObject->getDepth();
 
-    ImGui::InputFloat("Width", &width);
-    ImGui::InputFloat("Height", &height);
-    ImGui::InputFloat("Depth", &depth);
-    selectedObject->setSize(raylib::Vector3(width, height, depth));
-
-    if (ImGui::Button("Delete")) {
-      window.getScene().save("./scene.json");
-    }
+    ImGui::Spacing();
   }
 }
 
@@ -93,9 +132,15 @@ void ui::Gui::drawInterface(camera::Camera3D &camera, gui::Window &window) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Hierarchy", nullptr, &_showHierarchy);
       ImGui::MenuItem("Properties", nullptr, &_showProperties);
+      ImGui::Separator();
+      if (ImGui::BeginMenu("Toggle Entities Info")) {
+        ImGui::MenuItem("Entities", nullptr, &_showEntities);
+        ImGui::MenuItem("Transform", nullptr, &_showTransform);
+        ImGui::MenuItem("Materials", nullptr, &_showMaterials);
+        ImGui::EndMenu();
+      }
       ImGui::EndMenu();
     }
-
     ImGui::EndMainMenuBar();
   }
 
@@ -132,10 +177,13 @@ void ui::Gui::drawInterface(camera::Camera3D &camera, gui::Window &window) {
                              ImGuiCond_FirstUseEver);
 
     if (ImGui::Begin("Properties", &_showProperties)) {
-      if (!window.getScene().getSelectedObject()) {
+      auto selectedObject = window.getScene().getSelectedObject();
+      if (!selectedObject) {
         drawCameraInfo(camera, window);
       } else {
-        drawObjectInfo(window);
+        drawEntitiesInfos(selectedObject);
+        drawTransformInfos(selectedObject);
+        drawMaterialsInfos(selectedObject);
       }
     }
     ImGui::End();

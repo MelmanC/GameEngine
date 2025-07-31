@@ -6,7 +6,9 @@
 
 void scene::Scene::draw() const {
   for (const auto& shape : _shapes) {
-    shape->draw();
+    if (shape->isVisible()) {
+      shape->draw();
+    }
   }
 }
 

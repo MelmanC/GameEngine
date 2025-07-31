@@ -69,6 +69,12 @@ namespace shape {
       void setType(const std::string& type) override {
         _type = type;
       }
+      bool isVisible() const override {
+        return _visible;
+      }
+      void setVisible(bool visible) override {
+        _visible = visible;
+      }
 
     protected:
       raylib::Vector3 _position;
@@ -77,6 +83,7 @@ namespace shape {
       std::string _name;
       bool _isSelected = false;
       std::string _type;
+      bool _visible = true;
   };
 
 }  // namespace shape
