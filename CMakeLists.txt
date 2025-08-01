@@ -14,6 +14,9 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Core
     ${CMAKE_SOURCE_DIR}/Editor
     ${CMAKE_SOURCE_DIR}/Core/Camera
+    ${CMAKE_SOURCE_DIR}/Core/Ecs
+    ${CMAKE_SOURCE_DIR}/Core/Ecs/systems
+    ${CMAKE_SOURCE_DIR}/Core/Ecs/components
     ${CMAKE_SOURCE_DIR}/Assets
 )
 
@@ -73,6 +76,8 @@ add_library(EngineCore
     Core/Gizmo.cpp
     Core/JsonHandler.cpp
     Core/Camera/Camera3D.cpp
+    Core/Ecs/EntityManager.cpp
+    Core/Ecs/systems/RenderSystem.cpp
 )
 target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
 
