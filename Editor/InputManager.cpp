@@ -30,8 +30,9 @@ void input::InputManager::handleObjectSelection() {
   for (size_t i = 0; i < shapes.size(); ++i) {
     BoundingBox box = shapes[i]->getBoundingBox();
     raylib::RayCollision collision = GetRayCollisionBox(ray, box);
+
     if (collision.hit) {
-      selectedIndex = static_cast<int>(i);
+      selectedIndex = i;
       break;
     }
   }
