@@ -5,6 +5,7 @@ rlEngine is a small engine built on top of [raylib](https://www.raylib.com/) (cp
 ## WARNING
 At this moment, the engine is an editor that allows you to create scenes, add entities, and edit their properties.
 The goal is to create a game engine that allows you to create games without writing code, but for now, it is just an editor.
+Feel free to contribute to the project.
 
 # Features
 - 
@@ -33,10 +34,10 @@ cmake -B .build && cmake --build .build
 
 # Dependencies
 - [raylib](https://www.raylib.com/) - A simple and easy-to-use library to create games.
-- [raylib-cpp](https://github.com/RobLoach/raylib-cpp)
-- [nlohmann/json](https://github.com/nlohmann/json)
-- [ImGui](https://github.com/ocornut/imgui)
-- [rlImGui](https://github.com/raylib-extras/rlImGui)
+- [raylib-cpp](https://github.com/RobLoach/raylib-cpp) - C++ wrapper for raylib.
+- [nlohmann/json](https://github.com/nlohmann/json) - A JSON library for C++.
+- [ImGui](https://github.com/ocornut/imgui) - A bloat-free graphical user interface library for C++.
+- [rlImGui](https://github.com/raylib-extras/rlImGui) - A raylib binding for ImGui.
 
 # Contributing
 Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md)
