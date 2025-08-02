@@ -1,9 +1,8 @@
 #pragma once
-
 #include <string>
-#include "Component.hpp"
 
 namespace ecs {
+
   enum class ShapeType {
     CUBE,
     SPHERE,
@@ -11,17 +10,11 @@ namespace ecs {
     PLANE,
   };
 
-  class ShapeComponent : public Component<ShapeComponent> {
-    public:
-      ShapeComponent(ShapeType type = ShapeType::CUBE) : _type(type) {
-      }
-
-      ShapeType getType() const {
-        return _type;
-      }
+  struct ShapeComponent {
+      ShapeType type = ShapeType::CUBE;
 
       std::string getShapeTypeString() const {
-        switch (_type) {
+        switch (type) {
           case ShapeType::CUBE:
             return "Cube";
           case ShapeType::SPHERE:
@@ -34,12 +27,6 @@ namespace ecs {
             return "Unknown";
         }
       }
-
-      void setType(ShapeType type) {
-        _type = type;
-      }
-
-    private:
-      ShapeType _type;
   };
+
 }  // namespace ecs

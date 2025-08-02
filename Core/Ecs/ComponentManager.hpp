@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstddef>
 #include <typeindex>
 #include <unordered_map>
 #include "Component.hpp"
-#include "Entity.hpp"
+#include "EntityManager.hpp"
 
 namespace ecs {
   class ComponentManager {
@@ -11,56 +12,62 @@ namespace ecs {
       ComponentManager() = default;
       ~ComponentManager() = default;
 
-      template <typename T, typename... Args>
-      T *addComponent(Entity entity, Args &&...args) {
-        auto &componentArray = getComponentArray<T>();
-        componentArray[entity.getId()] =
-            std::make_unique<T>(std::forward<Args>(args)...);
-
-        return static_cast<T *>(componentArray[entity.getId()].get());
-      }
-
       template <typename T>
-      T *getComponent(Entity entity) {
-        auto &componentArray = getComponentArray<T>();
-        auto it = componentArray.find(entity.getId());
-        if (it != componentArray.end()) {
-          return static_cast<T *>(it->second.get());
+      void registerComponent() {
+        std::type_index ti(typeid(T));
+        if (_componentTypes.find(ti) == _componentTypes.end()) {
+          throw std::runtime_error(
+              "Cannot add component type: Type already exists.");
         }
-        return nullptr;
+        _componentTypes[ti] = _nextComponentType++;
       }
 
       template <typename T>
-      bool hasComponent(Entity entity) {
-        auto &componentArray = getComponentArray<T>();
-        return componentArray.find(entity.getId()) != componentArray.end();
+      ComponentType getComponentType() {
+        std::type_index ti(typeid(T));
+        return _componentTypes[ti];
       }
 
       template <typename T>
-      void removeComponent(Entity entity) {
-        auto &componentArray = getComponentArray<T>();
-        componentArray.erase(entity.getId());
+      void addComponent(Entity entityId, T component) {
+        getComponentArray<T>()->insertData(entityId, component);
       }
 
       template <typename T>
-      void removeAllComponents(Entity entity) {
-        for (auto &pair : _components) {
-          auto &componentArray = pair.second;
-          componentArray.erase(entity.getId());
+      void removeComponent(Entity entityId) {
+        getComponentArray<T>()->removeData(entityId);
+      }
+
+      template <typename T>
+      T &getComponent(Entity entityId) {
+        return getComponentArray<T>()->getData(entityId);
+      }
+
+      void entityDestroyed(Entity entityId) {
+        for (auto &pair : _componentArrays) {
+          pair.second->entityDestroyed(entityId);
         }
       }
 
     private:
-      std::unordered_map<
-          std::type_index,
-          std::unordered_map<EntityID, std::unique_ptr<BaseComponent>>>
-          _components;
+      std::unordered_map<std::type_index, ComponentType> _componentTypes;
 
+      std::unordered_map<ComponentType, std::shared_ptr<IComponentArray>>
+          _componentArrays;
+
+      ComponentType _nextComponentType;
+
+      // Retrieves the component array for a specific component type.
       template <typename T>
-      std::unordered_map<EntityID, std::unique_ptr<BaseComponent>> &
-      getComponentArray() {
-        std::type_index typeIndex = std::type_index(typeid(T));
-        return _components[typeIndex];
+      std::shared_ptr<Component<T>> getComponentArray() {
+        std::type_index ti(typeid(T));
+        if (_componentArrays.find(_componentTypes[ti]) ==
+            _componentArrays.end()) {
+          throw std::runtime_error(
+              "Cannot get component array: Component type not registered.");
+        }
+        return std::static_pointer_cast<Component<T>>(
+            _componentArrays[_componentTypes[ti]]);
       }
   };
 }  // namespace ecs

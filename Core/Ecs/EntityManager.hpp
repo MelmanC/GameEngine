@@ -1,27 +1,36 @@
 #pragma once
 
+#include <bitset>
+#include <cstdint>
 #include <queue>
-#include <vector>
-#include "Entity.hpp"
+
+constexpr std::size_t MAX_ENTITIES = 3000;
+using ComponentType = std::uint8_t;
+constexpr ComponentType MAX_COMPONENTS = 32;
+
+using Entity = std::uint32_t;
+
+using Signature = std::bitset<MAX_COMPONENTS>;
 
 namespace ecs {
+
   class EntityManager {
     public:
-      EntityManager() : _nextEntityID(1) {
-      }
+      EntityManager();
+
       ~EntityManager() = default;
 
       Entity createEntity();
+      void destroyEntity(Entity entityId);
 
-      void destroyEntity(Entity entity);
-
-      const std::vector<Entity> &getEntities() const {
-        return _entities;
-      }
+      void setSignature(Entity entityId, Signature signature);
+      Signature getSignature(Entity entityId) const;
 
     private:
-      EntityID _nextEntityID;
-      std::queue<EntityID> _availableEntityIDs;
-      std::vector<Entity> _entities;
+      std::queue<Entity> _poolEntitiesIDs;
+
+      std::array<Signature, MAX_ENTITIES> _signatures;
+
+      uint32_t _livingEntityCount = 0;
   };
 }  // namespace ecs

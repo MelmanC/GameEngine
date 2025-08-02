@@ -1,18 +1,12 @@
 #pragma once
 
-namespace ecs {
-  class ECSManager;
+#include <set>
+#include "EntityManager.hpp"
 
+namespace ecs {
   class System {
     public:
-      System(ECSManager *manager) : _manager(manager) {
-      }
-
-      virtual ~System() = default;
-
-      virtual void update() = 0;
-
-    protected:
-      ECSManager *_manager;
+      std::set<Entity> _entities;
+      virtual void update(float deltaTime) = 0;
   };
 }  // namespace ecs

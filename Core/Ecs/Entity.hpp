@@ -1,23 +1,26 @@
 #pragma once
 
-namespace ecs {
+#include <cstdint>
 
-  using EntityID = unsigned int;
+using EntityID = std::uint32_t;
+
+namespace ecs {
 
   class Entity {
     public:
-      Entity(EntityID id) : id(id) {
+      Entity() = default;
+      explicit Entity(EntityID id) : id(id) {
       }
 
       EntityID getId() const {
         return id;
       }
 
-      bool operator==(const Entity& other) const {
+      bool operator==(const Entity &other) const {
         return id == other.id;
       }
 
-      bool operator!=(const Entity& other) const {
+      bool operator!=(const Entity &other) const {
         return id != other.id;
       }
 

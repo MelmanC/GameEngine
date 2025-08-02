@@ -1,24 +1,22 @@
 #pragma once
 
-#include "ECSManager.hpp"
-#include "Entity.hpp"
+#include "ComponentManager.hpp"
 #include "System.hpp"
 
 namespace ecs {
 
   class RenderSystem : public System {
     public:
-      RenderSystem(ECSManager *manager) : System(manager) {
+      RenderSystem(ComponentManager &manager) : _componentManager(manager) {
       }
 
-      void update() override;
+      void update(float deltaTime);
 
       void render();
 
-      void renderCube(Entity entity);
-
-      void renderSelectedOutline(Entity entity);
-
-      bool hasRequiredComponents(Entity entity) const;
+    private:
+      ComponentManager &_componentManager;
   };
+
 }  // namespace ecs
+//

@@ -2,67 +2,75 @@
 
 #include "ComponentManager.hpp"
 #include "EntityManager.hpp"
-#include "System.hpp"
+#include "SystemManager.hpp"
 
 namespace ecs {
 
   class ECSManager {
     public:
-      ECSManager() = default;
-
-      ~ECSManager() = default;
+      ECSManager()
+          : _entityManager(std::make_unique<EntityManager>()),
+            _componentManager(std::make_unique<ComponentManager>()),
+            _systemManager(std::make_unique<SystemManager>()) {
+      }
 
       Entity createEntity() {
-        return _entityManager.createEntity();
+        return _entityManager->createEntity();
       }
 
       void destroyEntity(Entity entity) {
-        _entityManager.destroyEntity(entity);
-      }
-
-      const std::vector<Entity> &getEntities() const {
-        return _entityManager.getEntities();
-      }
-
-      template <typename T, typename... Args>
-      T &addComponent(Entity entity, Args &&...args) {
-        return _componentManager.addComponent<T>(entity,
-                                                 std::forward<Args>(args)...);
+        _entityManager->destroyEntity(entity);
+        _componentManager->entityDestroyed(entity);
+        _systemManager->entityDestroyed(entity);
       }
 
       template <typename T>
-      T *getComponent(Entity entity) {
-        return _componentManager.getComponent<T>(entity);
+      void registerComponent() {
+        _componentManager->registerComponent<T>();
       }
 
       template <typename T>
-      bool hasComponent(Entity entity) {
-        return _componentManager.hasComponent<T>(entity);
+      void addComponent(Entity entity, T component) {
+        _componentManager->addComponent<T>(entity, component);
+
+        auto signature = _entityManager->getSignature(entity);
+        signature.set(_componentManager->getComponentType<T>(), true);
+        _systemManager->entitySignatureChanged(entity, signature);
       }
 
       template <typename T>
       void removeComponent(Entity entity) {
-        _componentManager.removeComponent<T>(entity);
+        _componentManager->removeComponent<T>(entity);
+
+        auto signature = _entityManager->getSignature(entity);
+        signature.set(_componentManager->getComponentType<T>(), false);
+        _systemManager->entitySignatureChanged(entity, signature);
       }
 
-      template <typename T, typename... Args>
-      T *addSystem(Args &&...args) {
-        auto system = std::make_unique<T>(this, std::forward<Args>(args)...);
-        T *systemPtr = system.get();
-        _systems.push_back(std::move(system));
-        return systemPtr;
+      template <typename T>
+      T &getComponent(Entity entity) {
+        return _componentManager->getComponent<T>(entity);
       }
 
-      void updateSystems() {
-        for (const auto &system : _systems) {
-          system->update();
-        }
+      template <typename T>
+      ComponentType getComponentType() {
+        return _componentManager->getComponentType<T>();
+      }
+
+      template <typename T>
+      std::shared_ptr<T> registerSystem() {
+        return _systemManager->registerSystem<T>();
+      }
+
+      template <typename T>
+      void setSystemeSignature(Signature signature) {
+        _systemManager->setSignature<T>(signature);
       }
 
     private:
-      EntityManager _entityManager;
-      ComponentManager _componentManager;
-      std::vector<std::unique_ptr<System>> _systems;
+      std::unique_ptr<EntityManager> _entityManager;
+      std::unique_ptr<ComponentManager> _componentManager;
+      std::unique_ptr<SystemManager> _systemManager;
   };
 
 }  // namespace ecs

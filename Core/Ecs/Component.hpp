@@ -1,28 +1,76 @@
 #pragma once
 
+#include <cstddef>
+#include "EntityManager.hpp"
+
 namespace ecs {
 
-  using ComponentID = unsigned int;
-
-  class BaseComponent {
+  class IComponentArray {
     public:
-      virtual ~BaseComponent() = default;
+      virtual ~IComponentArray() = default;
+      virtual void entityDestroyed(Entity entityId) = 0;
   };
 
   template <typename T>
-  class Component : public BaseComponent {
+  class Component : public IComponentArray {
     public:
-      virtual ~Component() = default;
+      void insertData(Entity entityId, T component) {
+        if (_entityToIndexMap.find(entityId) != _entityToIndexMap.end()) {
+          throw std::runtime_error(
+              "Cannot insert component: Entity already has a component.");
+        }
+        size_t index = _size;
+        _entityToIndexMap[entityId] = index;
+        _indexToEntityMap[index] = entityId;
+        _componentArray[index] = component;
+        _size++;
+      }
 
-      static ComponentID getStaticComponentID() {
-        static ComponentID id = _nextComponentID++;
-        return id;
+      /*
+       * Removes the component associated with the given entity. (swap and pop)
+       * @param entityId The ID of the entity whose component is to be removed.
+       */
+      void removeData(Entity entityId) {
+        if (_entityToIndexMap.find(entityId) == _entityToIndexMap.end()) {
+          throw std::runtime_error(
+              "Cannot remove component: Entity does not have a component.");
+        }
+        size_t indexRemoved = _entityToIndexMap[entityId];
+        size_t lastIndex = _size - 1;
+        _componentArray[indexRemoved] = _entityToIndexMap[lastIndex];
+
+        Entity lastEntity = _entityToIndexMap[lastIndex];
+        _entityToIndexMap[lastEntity] = indexRemoved;
+        _indexToEntityMap[indexRemoved] = lastEntity;
+
+        _entityToIndexMap.erase(entityId);
+        _indexToEntityMap.erase(lastIndex);
+        --_size;
+      }
+
+      T &getData(Entity entityId) {
+        if (_entityToIndexMap.find(entityId) == _entityToIndexMap.end()) {
+          throw std::runtime_error(
+              "Cannot get component: Entity does not have a component.");
+        }
+        return _componentArray[_entityToIndexMap[entityId]];
+      }
+
+      void entityDestroyed(Entity entityId) override {
+        if (_entityToIndexMap.find(entityId) == _entityToIndexMap.end()) {
+          throw std::runtime_error(
+              "Cannot destroy entity: Entity does not have a component.");
+        }
+        removeData(entityId);
       }
 
     private:
-      static ComponentID _nextComponentID;
-  };
+      std::array<T, MAX_ENTITIES> _componentArray;
 
-  template <typename T>
-  ComponentID Component<T>::_nextComponentID = 1;
+      std::unordered_map<Entity, size_t> _entityToIndexMap;
+
+      std::unordered_map<size_t, Entity> _indexToEntityMap;
+
+      size_t _size;
+  };
 }  // namespace ecs

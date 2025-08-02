@@ -1,23 +1,40 @@
 #include "EntityManager.hpp"
 
-ecs::Entity ecs::EntityManager::createEntity() {
-  EntityID entityID;
-  if (!_availableEntityIDs.empty()) {
-    entityID = _availableEntityIDs.front();
-    _availableEntityIDs.pop();
-  } else {
-    entityID = _nextEntityID++;
+ecs::EntityManager::EntityManager() {
+  for (Entity entity = 0; entity < MAX_ENTITIES; ++entity) {
+    _poolEntitiesIDs.push(entity);
   }
-  _entities.push_back(entityID);
-  return Entity(entityID);
 }
 
-void ecs::EntityManager::destroyEntity(Entity entity) {
-  EntityID entityID = entity.getId();
-  _availableEntityIDs.push(entityID);
+Entity ecs::EntityManager::createEntity() {
+  if (_poolEntitiesIDs.empty())
+    throw std::runtime_error("No more entities available");
 
-  auto it = std::find(_entities.begin(), _entities.end(), entityID);
-  if (it != _entities.end()) {
-    _entities.erase(it);
-  }
+  Entity entityId = _poolEntitiesIDs.front();
+  _poolEntitiesIDs.pop();
+  ++_livingEntityCount;
+  return entityId;
+}
+
+void ecs::EntityManager::destroyEntity(Entity entityId) {
+  if (entityId >= MAX_ENTITIES)
+    throw std::out_of_range("Entity ID out of range");
+
+  _signatures[entityId].reset();
+  _poolEntitiesIDs.push(entityId);
+  --_livingEntityCount;
+}
+
+void ecs::EntityManager::setSignature(Entity entityId, Signature signature) {
+  if (entityId >= MAX_ENTITIES)
+    throw std::out_of_range("Entity ID out of range");
+
+  _signatures[entityId] = signature;
+}
+
+Signature ecs::EntityManager::getSignature(Entity entityId) const {
+  if (entityId >= MAX_ENTITIES)
+    throw std::out_of_range("Entity ID out of range");
+
+  return _signatures[entityId];
 }
