@@ -57,13 +57,13 @@ ecs::ShapeType jsonfile::Load::getShapeTypeFromJson(
   const auto& shapeData = entityData["shape"];
   std::string shapeTypeStr = shapeData.value("type", "CUBE");
 
-  if (shapeTypeStr == "CUBE")
+  if (shapeTypeStr == "Cube")
     return ecs::ShapeType::CUBE;
-  if (shapeTypeStr == "SPHERE")
+  if (shapeTypeStr == "Sphere")
     return ecs::ShapeType::SPHERE;
-  if (shapeTypeStr == "CYLINDER")
+  if (shapeTypeStr == "Cylinder")
     return ecs::ShapeType::CYLINDER;
-  if (shapeTypeStr == "PLANE")
+  if (shapeTypeStr == "Plane")
     return ecs::ShapeType::PLANE;
 
   return ecs::ShapeType::CUBE;

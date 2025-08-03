@@ -9,9 +9,9 @@
       "render": {
         "color": {
           "a": 255,
-          "b": 74,
-          "g": 74,
-          "r": 74
+          "b": 62,
+          "g": 62,
+          "r": 161
         },
         "visible": true
       },
@@ -20,7 +20,7 @@
       },
       "transform": {
         "position": {
-          "x": 2.8050777912139893,
+          "x": 3.9764840602874756,
           "y": 0.5,
           "z": 0.0
         },
@@ -39,26 +39,58 @@
     {
       "id": 1,
       "name": {
-        "name": "New Cube",
-        "type": "Cube"
+        "name": "Soleil",
+        "type": "Sphere"
       },
       "render": {
         "color": {
           "a": 255,
-          "b": 255,
-          "g": 255,
+          "b": 0,
+          "g": 231,
           "r": 255
         },
         "visible": true
       },
       "shape": {
-        "type": "Cube"
+        "type": "Sphere"
       },
       "transform": {
         "position": {
-          "x": -2.186094045639038,
+          "x": -2.557968854904175,
           "y": 0.5,
+          "z": -2.706796884536743
+        },
+        "radius": 1.0,
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
           "z": 0.0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "name": {
+        "name": "Scene",
+        "type": "Plane"
+      },
+      "render": {
+        "color": {
+          "a": 255,
+          "b": 44,
+          "g": 44,
+          "r": 44
+        },
+        "visible": true
+      },
+      "shape": {
+        "type": "Plane"
+      },
+      "transform": {
+        "position": {
+          "x": 6.133514881134033,
+          "y": 0.028749998658895493,
+          "z": -8.196328163146973
         },
         "rotation": {
           "x": 0.0,
@@ -66,9 +98,41 @@
           "z": 0.0
         },
         "size": {
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
+          "x": 10.0,
+          "y": 10.0
+        }
+      }
+    },
+    {
+      "id": 3,
+      "name": {
+        "name": "Obus",
+        "type": "Cylinder"
+      },
+      "render": {
+        "color": {
+          "a": 255,
+          "b": 128,
+          "g": 69,
+          "r": 29
+        },
+        "visible": true
+      },
+      "shape": {
+        "type": "Cylinder"
+      },
+      "transform": {
+        "height": 2.0,
+        "position": {
+          "x": -3.934140682220459,
+          "y": 0.5,
+          "z": 2.2651560306549072
+        },
+        "radius": 1.0,
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
         }
       }
     }
