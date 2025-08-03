@@ -63,12 +63,6 @@ namespace app {
         return _height;
       }
 
-      Entity createCubeEntity(
-          const raylib::Vector3& position = {0, 0, 0},
-          const raylib::Vector3& size = {1, 1, 1},
-          const raylib::Color& color = raylib::Color::White(),
-          const std::string& name = "Cube");
-
       ecs::GizmoSystem& getGizmoSystem() {
         return *_gizmoSystem;
       }

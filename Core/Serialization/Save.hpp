@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+#include <raylib-cpp.hpp>
 
 namespace scene {
   class Scene;
@@ -12,13 +13,11 @@ namespace ecs {
 
 namespace jsonfile {
 
-  class JsonHandler {
+  class Save {
     public:
-      JsonHandler() = default;
-      ~JsonHandler() = default;
+      Save() = default;
+      ~Save() = default;
 
-      void loadFromJson(scene::Scene& scene, const std::string& jsonFilePath,
-                        ecs::ECSManager* ecsManager);
       void saveToJson(const scene::Scene& scene,
                       const std::string& jsonFilePath,
                       ecs::ECSManager* ecsManager) const;

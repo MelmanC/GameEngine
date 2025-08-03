@@ -52,7 +52,10 @@ app::Application::~Application() {
 void app::Application::initECS() {
   _ecsManager = std::make_unique<ecs::ECSManager>();
 
-  _ecsManager->registerComponent<ecs::TransformComponent>();
+  _ecsManager->registerComponent<ecs::CubeTransformComponent>();
+  _ecsManager->registerComponent<ecs::SphereTransformComponent>();
+  _ecsManager->registerComponent<ecs::CylinderTransformComponent>();
+  _ecsManager->registerComponent<ecs::PlaneTransformComponent>();
   _ecsManager->registerComponent<ecs::RenderComponent>();
   _ecsManager->registerComponent<ecs::ShapeComponent>();
   _ecsManager->registerComponent<ecs::NameComponent>();
@@ -68,7 +71,6 @@ void app::Application::initECS() {
   _gizmoSystem->setECSManager(_ecsManager.get());
 
   Signature renderSignature;
-  renderSignature.set(_ecsManager->getComponentType<ecs::TransformComponent>());
   renderSignature.set(_ecsManager->getComponentType<ecs::RenderComponent>());
   renderSignature.set(_ecsManager->getComponentType<ecs::ShapeComponent>());
   _ecsManager->setSystemeSignature<ecs::RenderSystem>(renderSignature);
@@ -80,24 +82,8 @@ void app::Application::initECS() {
 
   Signature gizmoSignature;
   gizmoSignature.set(_ecsManager->getComponentType<ecs::GizmoComponent>());
-  gizmoSignature.set(_ecsManager->getComponentType<ecs::TransformComponent>());
   gizmoSignature.set(_ecsManager->getComponentType<ecs::SelectionComponent>());
   _ecsManager->setSystemeSignature<ecs::GizmoSystem>(gizmoSignature);
-}
-
-Entity app::Application::createCubeEntity(const raylib::Vector3& position,
-                                          const raylib::Vector3& size,
-                                          const raylib::Color& color,
-                                          const std::string& name) {
-  Entity entity = _ecsManager->createEntity();
-  _ecsManager->addComponent(entity, ecs::TransformComponent{position, size});
-  _ecsManager->addComponent(entity, ecs::RenderComponent{color, true});
-  _ecsManager->addComponent(entity, ecs::ShapeComponent{ecs::ShapeType::CUBE});
-  _ecsManager->addComponent(entity, ecs::NameComponent{name, "Cube"});
-  _ecsManager->addComponent(entity, ecs::SelectionComponent{false});
-  _ecsManager->addComponent(entity, ecs::GizmoComponent{});
-
-  return entity;
 }
 
 void app::Application::run() {

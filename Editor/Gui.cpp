@@ -1,10 +1,13 @@
 #include "Gui.hpp"
 #include <iostream>
+#include "3D/Shape.hpp"
 #include "Application.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "SelectionComponent.hpp"
+#include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
+#include "TransformHelper.hpp"
 #include "imgui.h"
 
 ui::Gui::Gui(const int width, const int height)
@@ -105,8 +108,7 @@ void ui::Gui::drawTransformInfo(Entity entity, ecs::ECSManager *ecsManager) {
   if (ImGui::CollapsingHeader(
           "Transform Info",
           _showTransform ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
-    auto &transformComp =
-        ecsManager->getComponent<ecs::TransformComponent>(entity);
+    auto &shapeComp = ecsManager->getComponent<ecs::ShapeComponent>(entity);
 
     if (ImGui::BeginTable("TransformTable", 2,
                           ImGuiTableFlags_SizingFixedFit)) {
@@ -114,11 +116,49 @@ void ui::Gui::drawTransformInfo(Entity entity, ecs::ECSManager *ecsManager) {
                               50.0f);
       ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
 
-      guiAlign("Position");
-      ImGui::InputFloat3("##Position", &transformComp.position.x);
+      auto [posPtr, rotPtr] =
+          ecs::TransformHelper::getPositionAndRotationPtrs(entity, ecsManager);
 
-      guiAlign("Size");
-      ImGui::InputFloat3("##Size", &transformComp.size.x);
+      if (posPtr && rotPtr) {
+        guiAlign("Position");
+        ImGui::InputFloat3("##Position", posPtr);
+
+        guiAlign("Rotation");
+        ImGui::InputFloat3("##Rotation", rotPtr);
+      }
+
+      switch (shapeComp.type) {
+        case ecs::ShapeType::CUBE: {
+          auto &cubeComp =
+              ecsManager->getComponent<ecs::CubeTransformComponent>(entity);
+          guiAlign("Size");
+          ImGui::InputFloat3("##CubeSize", &cubeComp.size.x);
+          break;
+        }
+        case ecs::ShapeType::SPHERE: {
+          auto &sphereComp =
+              ecsManager->getComponent<ecs::SphereTransformComponent>(entity);
+          guiAlign("Radius");
+          ImGui::InputFloat("##SphereRadius", &sphereComp.radius);
+          break;
+        }
+        case ecs::ShapeType::CYLINDER: {
+          auto &cylinderComp =
+              ecsManager->getComponent<ecs::CylinderTransformComponent>(entity);
+          guiAlign("Radius");
+          ImGui::InputFloat("##CylinderRadius", &cylinderComp.radius);
+          guiAlign("Height");
+          ImGui::InputFloat("##CylinderHeight", &cylinderComp.height);
+          break;
+        }
+        case ecs::ShapeType::PLANE: {
+          auto &planeComp =
+              ecsManager->getComponent<ecs::PlaneTransformComponent>(entity);
+          guiAlign("Size");
+          ImGui::InputFloat2("##PlaneSize", &planeComp.size.x);
+          break;
+        }
+      }
 
       ImGui::EndTable();
     }
@@ -153,9 +193,6 @@ void ui::Gui::drawRenderInfo(Entity entity, ecs::ECSManager *ecsManager) {
                           static_cast<unsigned char>(colorArray[2] * 255),
                           static_cast<unsigned char>(colorArray[3] * 255));
       }
-
-      guiAlign("Visible");
-      ImGui::Checkbox("##RenderVisible", &renderComp.visible);
 
       ImGui::EndTable();
     }
@@ -207,10 +244,26 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
     }
 
     if (ImGui::BeginMenu("Create")) {
+      shape3D::Shape shape;
       if (ImGui::MenuItem("Cube")) {
-        app.createCubeEntity({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f},
-                             raylib::Color::White(), "New Cube");
-        std::cout << "Cube added to scene!" << std::endl;
+        shape.createCubeEntity({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f},
+                               raylib::Color::White(), "New Cube",
+                               &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Sphere")) {
+        shape.createSphereEntity({0.0f, 0.5f, 0.0f}, 1.0f,
+                                 raylib::Color::White(), "New Sphere",
+                                 &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Cylinder")) {
+        shape.createCylinderEntity({0.0f, 0.5f, 0.0f}, 1.0f, 2.0f,
+                                   raylib::Color::White(), "New Cylinder",
+                                   &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Plane")) {
+        shape.createPlaneEntity({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f},
+                                raylib::Color::White(), "New Plane",
+                                &app.getECSManager());
       }
       ImGui::EndMenu();
     }
@@ -235,10 +288,12 @@ void ui::Gui::drawHierarchyPanel(app::Application &app) {
     ImGui::Text("Scene Entities (%zu)", entities.size());
     ImGui::Separator();
 
+    Entity entityToDelete = 0;
+    bool shouldDelete = false;
+
     for (size_t i = 0; i < entities.size(); ++i) {
       Entity entity = entities[i];
 
-      // Récupérer le nom de l'entité
       auto &nameComp = ecsManager.getComponent<ecs::NameComponent>(entity);
       auto &selectionComp =
           ecsManager.getComponent<ecs::SelectionComponent>(entity);
@@ -251,10 +306,14 @@ void ui::Gui::drawHierarchyPanel(app::Application &app) {
 
       if (ImGui::BeginPopupContextItem()) {
         if (ImGui::MenuItem("Delete")) {
-          ecsManager.destroyEntity(entity);
+          if (app.getScene().getSelectedEntity() == entity) {
+            app.getSelectionSystem().deselectAll();
+          }
+          entityToDelete = entity;
+          shouldDelete = true;
         }
         if (ImGui::MenuItem("Duplicate")) {
-          // TODO: Implémenter la duplication
+          // TODO: Implement duplication logic
         }
         ImGui::Separator();
         auto &renderComp =
@@ -264,6 +323,12 @@ void ui::Gui::drawHierarchyPanel(app::Application &app) {
         }
         ImGui::EndPopup();
       }
+    }
+
+    /* We delete the entity only after the loop to avoid
+       invalidating iterators or references */
+    if (shouldDelete) {
+      ecsManager.destroyEntity(entityToDelete);
     }
 
     ImGui::Separator();

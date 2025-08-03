@@ -43,7 +43,7 @@ std::vector<Entity> scene::Scene::getAllEntities() const {
 
 void scene::Scene::save(const std::string& jsonFilePath) const {
   if (_jsonHandler && _ecsManager) {
-    _jsonHandler->saveToJson(*this, jsonFilePath, _ecsManager);
+    _jsonHandler->save(*this, jsonFilePath, _ecsManager);
   }
 }
 
@@ -56,6 +56,6 @@ bool scene::Scene::hasSelectedEntity() const {
 
 void scene::Scene::load(const std::string& jsonFilePath) {
   if (_jsonHandler && _ecsManager) {
-    _jsonHandler->loadFromJson(*this, jsonFilePath, _ecsManager);
+    _jsonHandler->load(*this, jsonFilePath, _ecsManager);
   }
 }

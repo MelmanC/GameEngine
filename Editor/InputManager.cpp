@@ -7,7 +7,7 @@
 #include "GizmoComponent.hpp"
 #include "RayCollision.hpp"
 #include "RenderComponent.hpp"
-#include "TransformComponent.hpp"
+#include "TransformHelper.hpp"
 
 input::InputManager::InputManager(app::Application& app) : _app(app) {
 }
@@ -40,14 +40,13 @@ void input::InputManager::handleEntitySelection() {
 
   for (Entity entity : entities) {
     try {
-      auto& transform =
-          ecsManager.getComponent<ecs::TransformComponent>(entity);
       auto& render = ecsManager.getComponent<ecs::RenderComponent>(entity);
 
       if (!render.visible)
         continue;
 
-      BoundingBox box = transform.getBoundingBox();
+      BoundingBox box =
+          ecs::TransformHelper::getBoundingBox(entity, &ecsManager);
       raylib::RayCollision collision = GetRayCollisionBox(ray, box);
 
       if (collision.hit) {
@@ -82,13 +81,12 @@ void input::InputManager::handleMouseInput() {
     if (isMouseInViewport(mousePos)) {
       auto& gizmo = _app.getECSManager().getComponent<ecs::GizmoComponent>(
           selectedEntity);
-      auto& transform =
-          _app.getECSManager().getComponent<ecs::TransformComponent>(
-              selectedEntity);
+      auto transform = ecs::TransformHelper::getPosition(selectedEntity,
+                                                         &_app.getECSManager());
 
       ecs::GizmoAxis hoveredAxis = _app.getGizmoSystem().getHoveredAxis(
-          transform.position, _app.getCamera().getCamera(), mousePos,
-          gizmo.size, gizmo.cubeSize);
+          transform, _app.getCamera().getCamera(), mousePos, gizmo.size,
+          gizmo.cubeSize);
 
       if (hoveredAxis != ecs::GizmoAxis::NONE || gizmo.isDragging) {
         gizmoInteraction = true;

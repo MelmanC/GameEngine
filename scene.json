@@ -3,6 +3,42 @@
     {
       "id": 0,
       "name": {
+        "name": "Blabla",
+        "type": "Cube"
+      },
+      "render": {
+        "color": {
+          "a": 255,
+          "b": 74,
+          "g": 74,
+          "r": 74
+        },
+        "visible": true
+      },
+      "shape": {
+        "type": "Cube"
+      },
+      "transform": {
+        "position": {
+          "x": 2.8050777912139893,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "size": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      }
+    },
+    {
+      "id": 1,
+      "name": {
         "name": "New Cube",
         "type": "Cube"
       },
@@ -20,8 +56,13 @@
       },
       "transform": {
         "position": {
-          "x": 0.0,
+          "x": -2.186094045639038,
           "y": 0.5,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.0,
           "z": 0.0
         },
         "size": {

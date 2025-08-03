@@ -59,7 +59,6 @@ namespace ecs {
 
       ComponentType _nextComponentType;
 
-      // Retrieves the component array for a specific component type.
       template <typename T>
       std::shared_ptr<Component<T>> getComponentArray() {
         std::type_index ti(typeid(T));

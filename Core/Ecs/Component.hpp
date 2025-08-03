@@ -53,11 +53,9 @@ namespace ecs {
       }
 
       void entityDestroyed(Entity entityId) override {
-        if (_entityToIndexMap.find(entityId) == _entityToIndexMap.end()) {
-          throw std::runtime_error(
-              "Cannot destroy entity: Entity does not have a component.");
+        if (_entityToIndexMap.find(entityId) != _entityToIndexMap.end()) {
+          removeData(entityId);
         }
-        removeData(entityId);
       }
 
     private:
