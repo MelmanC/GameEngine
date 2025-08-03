@@ -1,9 +1,12 @@
 #include "JsonHandler.hpp"
 #include <raylib.h>
 #include <fstream>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <raylib-cpp.hpp>
 #include "ECSManager.hpp"
+#include "GizmoComponent.hpp"
+#include "GizmoSystem.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "Scene.hpp"
@@ -80,6 +83,9 @@ void jsonfile::JsonHandler::loadFromJson(scene::Scene& scene,
     ecs::SelectionComponent selection;
     selection.selected = false;
     ecsManager->addComponent(entity, selection);
+
+    ecs::GizmoComponent gizmo;
+    ecsManager->addComponent(entity, gizmo);
   }
 }
 
@@ -99,43 +105,29 @@ void jsonfile::JsonHandler::saveToJson(const scene::Scene& scene,
     nlohmann::json entityData;
     entityData["id"] = entity;
 
-    try {
-      // Sauvegarder TransformComponent
-      auto& transform =
-          ecsManager->getComponent<ecs::TransformComponent>(entity);
-      entityData["transform"] = {{"position",
-                                  {{"x", transform.position.x},
-                                   {"y", transform.position.y},
-                                   {"z", transform.position.z}}},
-                                 {"size",
-                                  {{"x", transform.size.x},
-                                   {"y", transform.size.y},
-                                   {"z", transform.size.z}}}};
-    } catch (const std::exception&) {
-    }
+    auto& transform = ecsManager->getComponent<ecs::TransformComponent>(entity);
+    entityData["transform"] = {{"position",
+                                {{"x", transform.position.x},
+                                 {"y", transform.position.y},
+                                 {"z", transform.position.z}}},
+                               {"size",
+                                {{"x", transform.size.x},
+                                 {"y", transform.size.y},
+                                 {"z", transform.size.z}}}};
 
-    try {
-      auto& render = ecsManager->getComponent<ecs::RenderComponent>(entity);
-      entityData["render"] = {{"color",
-                               {{"r", render.color.r},
-                                {"g", render.color.g},
-                                {"b", render.color.b},
-                                {"a", render.color.a}}},
-                              {"visible", render.visible}};
-    } catch (const std::exception&) {
-    }
+    auto& render = ecsManager->getComponent<ecs::RenderComponent>(entity);
+    entityData["render"] = {{"color",
+                             {{"r", render.color.r},
+                              {"g", render.color.g},
+                              {"b", render.color.b},
+                              {"a", render.color.a}}},
+                            {"visible", render.visible}};
 
-    try {
-      auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
-      entityData["shape"] = {{"type", shape.getShapeTypeString()}};
-    } catch (const std::exception&) {
-    }
+    auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
+    entityData["shape"] = {{"type", shape.getShapeTypeString()}};
 
-    try {
-      auto& name = ecsManager->getComponent<ecs::NameComponent>(entity);
-      entityData["name"] = {{"name", name.name}, {"type", name.type}};
-    } catch (const std::exception&) {
-    }
+    auto& name = ecsManager->getComponent<ecs::NameComponent>(entity);
+    entityData["name"] = {{"name", name.name}, {"type", name.type}};
 
     jsonData["entities"].push_back(entityData);
   }

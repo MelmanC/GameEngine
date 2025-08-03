@@ -34,9 +34,6 @@ app::Application::Application(int width, int height, const char* title)
 
   _scene.initialize(_selectionSystem.get(), _ecsManager.get());
 
-  createCubeEntity({0, 0.5f, 0}, {1, 1, 1}, raylib::Color::Red(), "Red Cube");
-  createCubeEntity({2, 0.5f, 0}, {1, 1, 1}, raylib::Color::Blue(), "Blue Cube");
-
   try {
     _scene.load("./scene.json");
   } catch (const std::exception& e) {

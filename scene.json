@@ -1,58 +1,35 @@
 {
-  "shapes": [
+  "entities": [
     {
-      "color": {
-        "a": 255,
-        "b": 255,
-        "g": 255,
-        "r": 255
+      "id": 0,
+      "name": {
+        "name": "New Cube",
+        "type": "Cube"
       },
-      "depth": 1.0,
-      "height": 1.0,
-      "name": "Triangle",
-      "position": {
-        "x": -2.9048449993133545,
-        "y": 0.5,
-        "z": 0.0
+      "render": {
+        "color": {
+          "a": 255,
+          "b": 255,
+          "g": 255,
+          "r": 255
+        },
+        "visible": true
       },
-      "type": "Cube",
-      "width": 1.0
-    },
-    {
-      "color": {
-        "a": 255,
-        "b": 255,
-        "g": 255,
-        "r": 255
+      "shape": {
+        "type": "Cube"
       },
-      "depth": 1.0,
-      "height": 1.0,
-      "name": "Cubeeeee",
-      "position": {
-        "x": 1.0460952520370483,
-        "y": 0.5,
-        "z": 6.303046226501465
-      },
-      "type": "Cube",
-      "width": 1.0
-    },
-    {
-      "color": {
-        "a": 255,
-        "b": 255,
-        "g": 255,
-        "r": 255
-      },
-      "depth": 1.0,
-      "height": 1.0,
-      "name": "Cube",
-      "position": {
-        "x": 0.0,
-        "y": 0.5,
-        "z": 0.0
-      },
-      "type": "Cube",
-      "width": 1.0
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "size": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        }
+      }
     }
   ]
 }

@@ -10,6 +10,7 @@ void scene::Scene::initialize(ecs::SelectionSystem* selectionSystem,
                               ecs::ECSManager* ecsManager) {
   _selectionSystem = selectionSystem;
   _ecsManager = ecsManager;
+  _jsonHandler = std::make_unique<jsonfile::JsonHandler>();
 }
 
 void scene::Scene::setSelectedEntity(Entity entity) {
