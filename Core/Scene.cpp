@@ -1,66 +1,60 @@
 #include "Scene.hpp"
 #include <memory>
 #include <nlohmann/json.hpp>
-#include "Gizmo.hpp"
+#include "EntityManager.hpp"
+#include "JsonHandler.hpp"
+#include "SelectionSystem.hpp"
 #include "rlgl.h"
 
-void scene::Scene::draw() const {
-  for (const auto& shape : _shapes) {
-    if (shape->isVisible()) {
-      shape->draw();
-    }
+void scene::Scene::initialize(ecs::SelectionSystem* selectionSystem,
+                              ecs::ECSManager* ecsManager) {
+  _selectionSystem = selectionSystem;
+  _ecsManager = ecsManager;
+}
+
+void scene::Scene::setSelectedEntity(Entity entity) {
+  if (_selectionSystem && _ecsManager) {
+    _selectionSystem->selectEntity(entity);
   }
 }
 
-void scene::Scene::drawGizmo() const {
-  auto selectedObject = getSelectedObject();
-  if (selectedObject) {
-    _gizmo.drawGizmo(selectedObject->getPosition());
+Entity scene::Scene::getSelectedEntity() const {
+  if (_selectionSystem) {
+    return _selectionSystem->getSelectedEntity();
   }
+  return 0;
 }
 
-void scene::Scene::updateGizmo(const raylib::Camera3D& camera,
-                               const raylib::Vector2& mousePos) {
-  _gizmo.update(getSelectedObject(), camera, mousePos);
-}
-
-void scene::Scene::handleGizmoInteraction(const raylib::Vector2& mousePos,
-                                          bool isMousePressed,
-                                          bool isMouseDown) {
-  _gizmo.handleInteraction(getSelectedObject(), mousePos, isMousePressed,
-                           isMouseDown);
-}
-
-void scene::Scene::setSelectedObject(int index) {
-  size_t nbr = static_cast<size_t>(index);
-  if (index < 0 || nbr >= _shapes.size()) {
+void scene::Scene::clearEntities() {
+  if (!_ecsManager)
     return;
-  }
-  for (size_t i = 0; i < _shapes.size(); ++i) {
-    if (i == nbr && !_shapes[i]->isSelected()) {
-      _shapes[i]->setSelected(true);
-    } else if (_shapes[i]->isSelected()) {
-      _shapes[i]->setSelected(false);
-    }
+  for (const auto& entity : _ecsManager->getAllEntities()) {
+    _ecsManager->destroyEntity(entity);
   }
 }
 
-shape::IGameShape* scene::Scene::getSelectedObject() const {
-  for (const auto& shape : _shapes) {
-    if (shape->isSelected()) {
-      return shape.get();
-    }
+std::vector<Entity> scene::Scene::getAllEntities() const {
+  if (_ecsManager) {
+    return _ecsManager->getAllEntities();
   }
-  return nullptr;
+  return {};
 }
 
-void scene::Scene::addShape(std::unique_ptr<shape::IGameShape> shape) {
-  _shapes.push_back(std::move(shape));
+void scene::Scene::save(const std::string& jsonFilePath) const {
+  if (_jsonHandler && _ecsManager) {
+    _jsonHandler->saveToJson(*this, jsonFilePath, _ecsManager);
+  }
 }
 
-void scene::Scene::removeShape(int index) {
-  if (index < 0 || static_cast<size_t>(index) >= _shapes.size()) {
-    return;
+bool scene::Scene::hasSelectedEntity() const {
+  if (_selectionSystem) {
+    return _selectionSystem->hasSelection();
   }
-  _shapes.erase(_shapes.begin() + index);
+  return false;
+}
+
+void scene::Scene::load(const std::string& jsonFilePath) {
+  if (_jsonHandler && _ecsManager) {
+    _jsonHandler->loadFromJson(*this, jsonFilePath, _ecsManager);
+  }
 }

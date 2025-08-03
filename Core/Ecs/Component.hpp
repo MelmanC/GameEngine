@@ -26,10 +26,6 @@ namespace ecs {
         _size++;
       }
 
-      /*
-       * Removes the component associated with the given entity. (swap and pop)
-       * @param entityId The ID of the entity whose component is to be removed.
-       */
       void removeData(Entity entityId) {
         if (_entityToIndexMap.find(entityId) == _entityToIndexMap.end()) {
           throw std::runtime_error(
@@ -37,9 +33,9 @@ namespace ecs {
         }
         size_t indexRemoved = _entityToIndexMap[entityId];
         size_t lastIndex = _size - 1;
-        _componentArray[indexRemoved] = _entityToIndexMap[lastIndex];
+        _componentArray[indexRemoved] = _componentArray[lastIndex];
 
-        Entity lastEntity = _entityToIndexMap[lastIndex];
+        Entity lastEntity = _indexToEntityMap[lastIndex];
         _entityToIndexMap[lastEntity] = indexRemoved;
         _indexToEntityMap[indexRemoved] = lastEntity;
 

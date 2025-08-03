@@ -3,7 +3,10 @@
 #include <raylib.h>
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
+#include "ECSManager.hpp"
+#include "GizmoSystem.hpp"
 #include "Scene.hpp"
+#include "SelectionSystem.hpp"
 
 namespace viewport {
 
@@ -31,12 +34,17 @@ namespace viewport {
 
       void setViewportBounds(int windowWidth, int windowHeight);
 
-      void handleGizmoInteraction(scene::Scene& scene,
-                                  const raylib::Vector2& mousePos,
-                                  bool isMousePressed, bool isMouseDown);
+      void handleGizmoInteraction(const raylib::Vector2& mousePos,
+                                  bool isMousePressed, bool isMouseDown,
+                                  ecs::ECSManager* ecsManager,
+                                  ecs::GizmoSystem* gizmoSystem,
+                                  ecs::SelectionSystem* selectionSystem);
 
-      void updateGizmo(scene::Scene& scene, camera::Camera3D& camera,
-                       const raylib::Vector2& mousePos);
+      void updateGizmo(camera::Camera3D& camera,
+                       const raylib::Vector2& mousePos,
+                       ecs::ECSManager* ecsManager,
+                       ecs::GizmoSystem* gizmoSystem,
+                       ecs::SelectionSystem* selectionSystem);
 
     private:
       raylib::Rectangle _viewport;

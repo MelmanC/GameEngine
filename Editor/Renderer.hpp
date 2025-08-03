@@ -3,7 +3,12 @@
 #include <raylib.h>
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
-#include "Scene.hpp"
+#include "GizmoSystem.hpp"
+#include "RenderSystem.hpp"
+
+namespace scene {
+  class Scene;
+}  // namespace scene
 
 namespace render {
 
@@ -17,7 +22,9 @@ namespace render {
       void endFrame();
 
       void drawViewport(const raylib::Rectangle& viewport,
-                        camera::Camera3D& camera, scene::Scene& scene);
+                        camera::Camera3D& camera,
+                        ecs::RenderSystem* renderSystem,
+                        ecs::GizmoSystem* gizmoSystem);
 
       void drawBackground(const raylib::Color& color);
 

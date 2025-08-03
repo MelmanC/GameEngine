@@ -24,6 +24,10 @@ namespace ecs {
         _systemManager->entityDestroyed(entity);
       }
 
+      std::vector<Entity> getAllEntities() const {
+        return _entityManager->getAllLivingEntities();
+      }
+
       template <typename T>
       void registerComponent() {
         _componentManager->registerComponent<T>();
@@ -35,6 +39,7 @@ namespace ecs {
 
         auto signature = _entityManager->getSignature(entity);
         signature.set(_componentManager->getComponentType<T>(), true);
+        _entityManager->setSignature(entity, signature);
         _systemManager->entitySignatureChanged(entity, signature);
       }
 

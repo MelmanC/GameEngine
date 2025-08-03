@@ -1,6 +1,7 @@
 #include "RenderSystem.hpp"
 #include <raylib.h>
 #include <iostream>
+#include "ECSManager.hpp"
 #include "RenderComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
@@ -12,10 +13,9 @@ void ecs::RenderSystem::update(float deltaTime) {
 
 void ecs::RenderSystem::render() {
   for (Entity entity : _entities) {
-    auto &shape = _componentManager.getComponent<ShapeComponent>(entity);
-    auto &transform =
-        _componentManager.getComponent<TransformComponent>(entity);
-    auto &render = _componentManager.getComponent<RenderComponent>(entity);
+    auto &shape = _ecsManager->getComponent<ShapeComponent>(entity);
+    auto &render = _ecsManager->getComponent<RenderComponent>(entity);
+    auto &transform = _ecsManager->getComponent<TransformComponent>(entity);
 
     if (!render.visible)
       continue;

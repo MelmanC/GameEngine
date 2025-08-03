@@ -38,3 +38,16 @@ Signature ecs::EntityManager::getSignature(Entity entityId) const {
 
   return _signatures[entityId];
 }
+
+std::vector<Entity> ecs::EntityManager::getAllLivingEntities() const {
+  std::vector<Entity> livingEntities;
+  livingEntities.reserve(_livingEntityCount);
+
+  for (Entity entity = 0; entity < MAX_ENTITIES; ++entity) {
+    if (_signatures[entity].any()) {
+      livingEntities.push_back(entity);
+    }
+  }
+
+  return livingEntities;
+}

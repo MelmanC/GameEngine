@@ -1,13 +1,19 @@
 #pragma once
 
-#include "ComponentManager.hpp"
 #include "System.hpp"
+
+namespace ecs {
+  class ECSManager;
+}  // namespace ecs
 
 namespace ecs {
 
   class RenderSystem : public System {
     public:
-      RenderSystem(ComponentManager &manager) : _componentManager(manager) {
+      RenderSystem() = default;
+
+      void setECSManager(ECSManager *ecsManager) {
+        _ecsManager = ecsManager;
       }
 
       void update(float deltaTime);
@@ -15,7 +21,7 @@ namespace ecs {
       void render();
 
     private:
-      ComponentManager &_componentManager;
+      ECSManager *_ecsManager = nullptr;
   };
 
 }  // namespace ecs

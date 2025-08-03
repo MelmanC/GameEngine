@@ -7,6 +7,10 @@ namespace app {
   class Application;
 }
 
+namespace ecs {
+  class ECSManager;
+}
+
 namespace input {
 
   class InputManager {
@@ -22,10 +26,12 @@ namespace input {
       void handleMouseInput();
       void handleCameraMovement();
       void handleApplicationShortcuts();
-      void handleObjectSelection();
+      void handleEntitySelection();
 
       bool canProcessKeyboard() const;
       bool canProcessMouse() const;
+
+      bool isMouseInViewport(const raylib::Vector2& mousePos) const;
 
       app::Application& _app;
   };

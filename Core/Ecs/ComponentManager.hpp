@@ -15,11 +15,13 @@ namespace ecs {
       template <typename T>
       void registerComponent() {
         std::type_index ti(typeid(T));
-        if (_componentTypes.find(ti) == _componentTypes.end()) {
+        if (_componentTypes.find(ti) != _componentTypes.end()) {
           throw std::runtime_error(
               "Cannot add component type: Type already exists.");
         }
         _componentTypes[ti] = _nextComponentType++;
+        _componentArrays[_nextComponentType - 1] =
+            std::make_shared<Component<T>>();
       }
 
       template <typename T>

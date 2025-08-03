@@ -72,12 +72,12 @@ target_link_libraries(rlimgui PUBLIC imgui raylib)
 
 add_library(EngineCore
     Core/Scene.cpp
-    Core/Cube.cpp
-    Core/Gizmo.cpp
     Core/JsonHandler.cpp
     Core/Camera/Camera3D.cpp
     Core/Ecs/EntityManager.cpp
     Core/Ecs/systems/RenderSystem.cpp
+    Core/Ecs/systems/SelectionSystem.cpp
+    Core/Ecs/systems/GizmoSystem.cpp
 )
 target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
 

@@ -5,7 +5,8 @@
 #include <rlImGui.h>
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
-#include "IGameShape.hpp"
+#include "ECSManager.hpp"
+#include "EntityManager.hpp"
 
 namespace app {
   class Application;
@@ -27,11 +28,11 @@ namespace ui {
 
       void guiAlign(const char *label);
 
-      void drawEntitiesInfos(shape::IGameShape *selectedObject);
+      void drawEntityInfo(Entity entity, ecs::ECSManager *ecsManager);
 
-      void drawTransformInfos(shape::IGameShape *selectedObject);
+      void drawTransformInfo(Entity entity, ecs::ECSManager *ecsManager);
 
-      void drawMaterialsInfos(shape::IGameShape *selectedObject);
+      void drawRenderInfo(Entity entity, ecs::ECSManager *ecsManager);
 
       void drawMainMenuBar(app::Application &app);
 

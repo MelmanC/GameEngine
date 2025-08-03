@@ -3,10 +3,14 @@
 #include <memory>
 #include <raylib-cpp.hpp>
 #include "Camera3D.hpp"
+#include "ECSManager.hpp"
+#include "GizmoSystem.hpp"
 #include "Gui.hpp"
 #include "InputManager.hpp"
+#include "RenderSystem.hpp"
 #include "Renderer.hpp"
 #include "Scene.hpp"
+#include "SelectionSystem.hpp"
 #include "ViewportManager.hpp"
 
 namespace app {
@@ -31,6 +35,14 @@ namespace app {
         return _camera;
       }
 
+      ecs::ECSManager& getECSManager() {
+        return *_ecsManager;
+      }
+
+      ecs::SelectionSystem& getSelectionSystem() {
+        return *_selectionSystem;
+      }
+
       raylib::Rectangle getViewport() const;
       bool isViewportActive() const;
       void setViewportActive(bool active);
@@ -51,9 +63,20 @@ namespace app {
         return _height;
       }
 
+      Entity createCubeEntity(
+          const raylib::Vector3& position = {0, 0, 0},
+          const raylib::Vector3& size = {1, 1, 1},
+          const raylib::Color& color = raylib::Color::White(),
+          const std::string& name = "Cube");
+
+      ecs::GizmoSystem& getGizmoSystem() {
+        return *_gizmoSystem;
+      }
+
     private:
       void update();
       void render();
+      void initECS();
 
       int _width, _height;
       const char* _title;
@@ -67,6 +90,11 @@ namespace app {
       viewport::ViewportManager _viewportManager;
       std::unique_ptr<ui::Gui> _gui;
       std::unique_ptr<input::InputManager> _inputManager;
+
+      std::unique_ptr<ecs::ECSManager> _ecsManager;
+      std::shared_ptr<ecs::RenderSystem> _renderSystem;
+      std::shared_ptr<ecs::SelectionSystem> _selectionSystem;
+      std::shared_ptr<ecs::GizmoSystem> _gizmoSystem;
   };
 
 }  // namespace app

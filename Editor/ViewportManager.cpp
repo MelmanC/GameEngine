@@ -33,18 +33,29 @@ void viewport::ViewportManager::setActive(bool active) {
 }
 
 void viewport::ViewportManager::handleGizmoInteraction(
-    scene::Scene& scene, const raylib::Vector2& mousePos, bool isMousePressed,
-    bool isMouseDown) {
-  if (isMouseInViewport(mousePos) && !_isActive) {
-    scene.handleGizmoInteraction(mousePos, isMousePressed, isMouseDown);
+    const raylib::Vector2& mousePos, bool isMousePressed, bool isMouseDown,
+    ecs::ECSManager* ecsManager, ecs::GizmoSystem* gizmoSystem,
+    ecs::SelectionSystem* selectionSystem) {
+  if (isMouseInViewport(mousePos) && !_isActive && ecsManager && gizmoSystem &&
+      selectionSystem) {
+    if (selectionSystem->hasSelection()) {
+      Entity selectedEntity = selectionSystem->getSelectedEntity();
+      gizmoSystem->handleGizmoInteraction(selectedEntity, mousePos,
+                                          isMousePressed, isMouseDown);
+    }
   }
 }
 
-void viewport::ViewportManager::updateGizmo(scene::Scene& scene,
-                                            camera::Camera3D& camera,
-                                            const raylib::Vector2& mousePos) {
-  if (isMouseInViewport(mousePos) && !_isActive) {
-    scene.updateGizmo(camera.getCamera(), mousePos);
+void viewport::ViewportManager::updateGizmo(
+    camera::Camera3D& camera, const raylib::Vector2& mousePos,
+    ecs::ECSManager* ecsManager, ecs::GizmoSystem* gizmoSystem,
+    ecs::SelectionSystem* selectionSystem) {
+  if (isMouseInViewport(mousePos) && !_isActive && ecsManager && gizmoSystem &&
+      selectionSystem) {
+    if (selectionSystem->hasSelection()) {
+      Entity selectedEntity = selectionSystem->getSelectedEntity();
+      gizmoSystem->updateGizmo(selectedEntity, camera.getCamera(), mousePos);
+    }
   }
 }
 
