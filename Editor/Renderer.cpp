@@ -20,20 +20,23 @@ void render::Renderer::drawBackground(const raylib::Color& color) {
 
 void render::Renderer::drawViewport(const raylib::Rectangle& viewport,
                                     camera::Camera3D& camera,
-                                    scene::Scene& scene) {
+                                    ecs::RenderSystem* renderSystem,
+                                    ecs::GizmoSystem* gizmoSystem) {
   DrawRectangleRec(viewport, _viewportColor);
 
   setupViewportScissor(viewport);
 
   camera.getCamera().BeginMode();
   drawGrid();
-  scene.draw();
+
+  renderSystem->render();
+
   camera.getCamera().EndMode();
 
   camera.getCamera().BeginMode();
   rlDrawRenderBatchActive();
   rlDisableDepthTest();
-  scene.drawGizmo();
+  gizmoSystem->drawGizmos();
   rlDrawRenderBatchActive();
   rlEnableDepthTest();
   camera.getCamera().EndMode();

@@ -13,7 +13,12 @@ add_compile_options(-W -Wall -Wextra -std=c++20)
 include_directories(
     ${CMAKE_SOURCE_DIR}/Core
     ${CMAKE_SOURCE_DIR}/Editor
+    ${CMAKE_SOURCE_DIR}/Editor/3D
     ${CMAKE_SOURCE_DIR}/Core/Camera
+    ${CMAKE_SOURCE_DIR}/Core/Serialization
+    ${CMAKE_SOURCE_DIR}/Core/Ecs
+    ${CMAKE_SOURCE_DIR}/Core/Ecs/systems
+    ${CMAKE_SOURCE_DIR}/Core/Ecs/components
     ${CMAKE_SOURCE_DIR}/Assets
 )
 
@@ -69,10 +74,13 @@ target_link_libraries(rlimgui PUBLIC imgui raylib)
 
 add_library(EngineCore
     Core/Scene.cpp
-    Core/Cube.cpp
-    Core/Gizmo.cpp
-    Core/JsonHandler.cpp
+    Core/Serialization/Load.cpp
+    Core/Serialization/Save.cpp
     Core/Camera/Camera3D.cpp
+    Core/Ecs/EntityManager.cpp
+    Core/Ecs/systems/RenderSystem.cpp
+    Core/Ecs/systems/SelectionSystem.cpp
+    Core/Ecs/systems/GizmoSystem.cpp
 )
 target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
 
@@ -84,6 +92,7 @@ add_executable(EditorApp
     Editor/Renderer.cpp
     Editor/ViewportManager.cpp
     Editor/Application.cpp
+    Editor/3D/Shape.cpp
 )
 target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore imgui rlimgui)
 

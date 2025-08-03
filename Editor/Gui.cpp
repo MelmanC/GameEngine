@@ -1,7 +1,13 @@
 #include "Gui.hpp"
 #include <iostream>
+#include "3D/Shape.hpp"
 #include "Application.hpp"
-#include "Cube.hpp"
+#include "NameComponent.hpp"
+#include "RenderComponent.hpp"
+#include "SelectionComponent.hpp"
+#include "ShapeComponent.hpp"
+#include "TransformComponent.hpp"
+#include "TransformHelper.hpp"
 #include "imgui.h"
 
 ui::Gui::Gui(const int width, const int height)
@@ -34,11 +40,14 @@ void ui::Gui::drawCameraInfo(camera::Camera3D &camera, app::Application &app) {
 
   ImGui::Separator();
   ImGui::Text("Scene Stats:");
-  ImGui::Text("Objects: %zu", app.getScene().getShapes().size());
+  int entityCount = 0;
+  auto &ecsManager = app.getECSManager();
+  ImGui::Text("Entities: %d", entityCount);
 
-  auto selectedObject = app.getScene().getSelectedObject();
-  if (selectedObject) {
-    ImGui::Text("Selected: %s", selectedObject->getName().c_str());
+  if (app.getScene().hasSelectedEntity()) {
+    Entity selectedEntity = app.getScene().getSelectedEntity();
+    auto &name = ecsManager.getComponent<ecs::NameComponent>(selectedEntity);
+    ImGui::Text("Selected: %s", name.name.c_str());
   } else {
     ImGui::Text("Selected: None");
   }
@@ -53,29 +62,37 @@ void ui::Gui::guiAlign(const char *label) {
   ImGui::SetNextItemWidth(-1);
 }
 
-void ui::Gui::drawEntitiesInfos(shape::IGameShape *selectedObject) {
+void ui::Gui::drawEntityInfo(Entity entity, ecs::ECSManager *ecsManager) {
+  if (!ecsManager)
+    return;
+
   if (ImGui::CollapsingHeader(
           "Entity Info", _showEntities ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
+    auto &nameComp = ecsManager->getComponent<ecs::NameComponent>(entity);
+    auto &renderComp = ecsManager->getComponent<ecs::RenderComponent>(entity);
+
     char name[64];
-    std::strncpy(name, selectedObject->getName().c_str(), sizeof(name) - 1);
+    std::strncpy(name, nameComp.name.c_str(), sizeof(name) - 1);
     name[sizeof(name) - 1] = '\0';
 
     if (ImGui::BeginTable("EntityTable", 2, ImGuiTableFlags_SizingFixedFit)) {
       ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed,
                               50.0f);
       ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+
+      guiAlign("Entity ID");
+      ImGui::Text("%u", entity);
+
       guiAlign("Name");
       if (ImGui::InputText("##EntityName", name, sizeof(name))) {
-        selectedObject->setName(name);
+        nameComp.name = name;
       }
 
       guiAlign("Type");
-      ImGui::Text("%s", selectedObject->getType().c_str());
+      ImGui::Text("%s", nameComp.type.c_str());
 
       guiAlign("Visible");
-      bool objectVisible = selectedObject->isVisible();
-      if (ImGui::Checkbox("##Visible", &objectVisible)) {
-        selectedObject->setVisible(objectVisible);
+      if (ImGui::Checkbox("##Visible", &renderComp.visible)) {
       }
 
       ImGui::EndTable();
@@ -84,25 +101,63 @@ void ui::Gui::drawEntitiesInfos(shape::IGameShape *selectedObject) {
   }
 }
 
-void ui::Gui::drawTransformInfos(shape::IGameShape *selectedObject) {
+void ui::Gui::drawTransformInfo(Entity entity, ecs::ECSManager *ecsManager) {
+  if (!ecsManager)
+    return;
+
   if (ImGui::CollapsingHeader(
           "Transform Info",
           _showTransform ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
+    auto &shapeComp = ecsManager->getComponent<ecs::ShapeComponent>(entity);
+
     if (ImGui::BeginTable("TransformTable", 2,
                           ImGuiTableFlags_SizingFixedFit)) {
       ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed,
                               50.0f);
       ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
-      raylib::Vector3 position = selectedObject->getPosition();
-      guiAlign("Position");
-      if (ImGui::InputFloat3("##Position", &position.x)) {
-        selectedObject->setPosition(position);
+
+      auto [posPtr, rotPtr] =
+          ecs::TransformHelper::getPositionAndRotationPtrs(entity, ecsManager);
+
+      if (posPtr && rotPtr) {
+        guiAlign("Position");
+        ImGui::InputFloat3("##Position", posPtr);
+
+        guiAlign("Rotation");
+        ImGui::InputFloat3("##Rotation", rotPtr);
       }
 
-      raylib::Vector3 scale = selectedObject->getSize();
-      guiAlign("Scale");
-      if (ImGui::InputFloat3("##Scale", &scale.x)) {
-        selectedObject->setSize(scale);
+      switch (shapeComp.type) {
+        case ecs::ShapeType::CUBE: {
+          auto &cubeComp =
+              ecsManager->getComponent<ecs::CubeTransformComponent>(entity);
+          guiAlign("Size");
+          ImGui::InputFloat3("##CubeSize", &cubeComp.size.x);
+          break;
+        }
+        case ecs::ShapeType::SPHERE: {
+          auto &sphereComp =
+              ecsManager->getComponent<ecs::SphereTransformComponent>(entity);
+          guiAlign("Radius");
+          ImGui::InputFloat("##SphereRadius", &sphereComp.radius);
+          break;
+        }
+        case ecs::ShapeType::CYLINDER: {
+          auto &cylinderComp =
+              ecsManager->getComponent<ecs::CylinderTransformComponent>(entity);
+          guiAlign("Radius");
+          ImGui::InputFloat("##CylinderRadius", &cylinderComp.radius);
+          guiAlign("Height");
+          ImGui::InputFloat("##CylinderHeight", &cylinderComp.height);
+          break;
+        }
+        case ecs::ShapeType::PLANE: {
+          auto &planeComp =
+              ecsManager->getComponent<ecs::PlaneTransformComponent>(entity);
+          guiAlign("Size");
+          ImGui::InputFloat2("##PlaneSize", &planeComp.size.x);
+          break;
+        }
       }
 
       ImGui::EndTable();
@@ -111,28 +166,32 @@ void ui::Gui::drawTransformInfos(shape::IGameShape *selectedObject) {
   }
 }
 
-void ui::Gui::drawMaterialsInfos(shape::IGameShape *selectedObject) {
+void ui::Gui::drawRenderInfo(Entity entity, ecs::ECSManager *ecsManager) {
+  if (!ecsManager)
+    return;
+
   if (ImGui::CollapsingHeader(
-          "Materials Info",
-          _showMaterials ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
-    if (ImGui::BeginTable("MaterialsTable", 2,
-                          ImGuiTableFlags_SizingFixedFit)) {
+          "Render Info", _showMaterials ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
+    auto &renderComp = ecsManager->getComponent<ecs::RenderComponent>(entity);
+
+    if (ImGui::BeginTable("RenderTable", 2, ImGuiTableFlags_SizingFixedFit)) {
       ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed,
                               50.0f);
       ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
-      raylib::Color color = selectedObject->getColor();
-      float colorArray[4] = {color.r / 255.0f, color.g / 255.0f,
-                             color.b / 255.0f, color.a / 255.0f};
 
       guiAlign("Color");
+      float colorArray[4] = {
+          renderComp.color.r / 255.0f, renderComp.color.g / 255.0f,
+          renderComp.color.b / 255.0f, renderComp.color.a / 255.0f};
+
       if (ImGui::ColorEdit4(
               "##Color", colorArray,
               ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel)) {
-        selectedObject->setColor(
+        renderComp.color =
             raylib::Color(static_cast<unsigned char>(colorArray[0] * 255),
                           static_cast<unsigned char>(colorArray[1] * 255),
                           static_cast<unsigned char>(colorArray[2] * 255),
-                          static_cast<unsigned char>(colorArray[3] * 255)));
+                          static_cast<unsigned char>(colorArray[3] * 255));
       }
 
       ImGui::EndTable();
@@ -145,7 +204,7 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
       if (ImGui::MenuItem("New", "Ctrl+N")) {
-        app.getScene().clearShapes();
+        app.getScene().clearEntities();
         std::cout << "New scene created!" << std::endl;
       }
       if (ImGui::MenuItem("Open", "Ctrl+O")) {
@@ -185,10 +244,26 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
     }
 
     if (ImGui::BeginMenu("Create")) {
+      shape3D::Shape shape;
       if (ImGui::MenuItem("Cube")) {
-        app.getScene().addShape(std::make_unique<shape::Cube>(
-            1.0f, 1.0f, 1.0f, raylib::Vector3(0.0f, 0.5f, 0.0f)));
-        std::cout << "Cube added to scene!" << std::endl;
+        shape.createCubeEntity({0.0f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f},
+                               raylib::Color::White(), "New Cube",
+                               &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Sphere")) {
+        shape.createSphereEntity({0.0f, 0.5f, 0.0f}, 1.0f,
+                                 raylib::Color::White(), "New Sphere",
+                                 &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Cylinder")) {
+        shape.createCylinderEntity({0.0f, 0.5f, 0.0f}, 1.0f, 2.0f,
+                                   raylib::Color::White(), "New Cylinder",
+                                   &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Plane")) {
+        shape.createPlaneEntity({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f},
+                                raylib::Color::White(), "New Plane",
+                                &app.getECSManager());
       }
       ImGui::EndMenu();
     }
@@ -206,32 +281,54 @@ void ui::Gui::drawHierarchyPanel(app::Application &app) {
                            ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Hierarchy", &_showHierarchy)) {
-    ImGui::Text("Scene Objects (%zu)", app.getScene().getShapes().size());
+    auto &ecsManager = app.getECSManager();
+
+    std::vector<Entity> entities = app.getScene().getAllEntities();
+
+    ImGui::Text("Scene Entities (%zu)", entities.size());
     ImGui::Separator();
 
-    for (size_t i = 0; i < app.getScene().getShapes().size(); ++i) {
-      const auto &shape = app.getScene().getShapes()[i];
+    Entity entityToDelete = 0;
+    bool shouldDelete = false;
 
-      std::string objectName = shape->getName() + "##" + std::to_string(i);
+    for (size_t i = 0; i < entities.size(); ++i) {
+      Entity entity = entities[i];
 
-      bool isSelected = shape->isSelected();
-      if (ImGui::Selectable(objectName.c_str(), isSelected)) {
-        app.getScene().setSelectedObject(static_cast<int>(i));
+      auto &nameComp = ecsManager.getComponent<ecs::NameComponent>(entity);
+      auto &selectionComp =
+          ecsManager.getComponent<ecs::SelectionComponent>(entity);
+
+      std::string objectName = nameComp.name + "##" + std::to_string(entity);
+
+      if (ImGui::Selectable(objectName.c_str(), selectionComp.selected)) {
+        app.getScene().setSelectedEntity(entity);
       }
 
       if (ImGui::BeginPopupContextItem()) {
         if (ImGui::MenuItem("Delete")) {
-          app.getScene().removeShape(i);
+          if (app.getScene().getSelectedEntity() == entity) {
+            app.getSelectionSystem().deselectAll();
+          }
+          entityToDelete = entity;
+          shouldDelete = true;
         }
         if (ImGui::MenuItem("Duplicate")) {
+          // TODO: Implement duplication logic
         }
         ImGui::Separator();
-        bool visible = shape->isVisible();
+        auto &renderComp =
+            ecsManager.getComponent<ecs::RenderComponent>(entity);
         if (ImGui::MenuItem("Toggle Visibility")) {
-          shape->setVisible(!visible);
+          renderComp.visible = !renderComp.visible;
         }
         ImGui::EndPopup();
       }
+    }
+
+    /* We delete the entity only after the loop to avoid
+       invalidating iterators or references */
+    if (shouldDelete) {
+      ecsManager.destroyEntity(entityToDelete);
     }
 
     ImGui::Separator();
@@ -250,13 +347,16 @@ void ui::Gui::drawPropertiesPanel(camera::Camera3D &camera,
                            ImGuiCond_FirstUseEver);
 
   if (ImGui::Begin("Properties", &_showProperties)) {
-    auto selectedObject = app.getScene().getSelectedObject();
-    if (!selectedObject) {
+    auto &ecsManager = app.getECSManager();
+
+    if (!app.getScene().hasSelectedEntity()) {
       drawCameraInfo(camera, app);
     } else {
-      drawEntitiesInfos(selectedObject);
-      drawTransformInfos(selectedObject);
-      drawMaterialsInfos(selectedObject);
+      Entity selectedEntity = app.getScene().getSelectedEntity();
+
+      drawEntityInfo(selectedEntity, &ecsManager);
+      drawTransformInfo(selectedEntity, &ecsManager);
+      drawRenderInfo(selectedEntity, &ecsManager);
 
       ImGui::Separator();
     }
@@ -266,7 +366,6 @@ void ui::Gui::drawPropertiesPanel(camera::Camera3D &camera,
 
 void ui::Gui::drawInterface(camera::Camera3D &camera, app::Application &app) {
   drawMainMenuBar(app);
-
   drawHierarchyPanel(app);
   drawPropertiesPanel(camera, app);
 }

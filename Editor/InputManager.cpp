@@ -3,7 +3,11 @@
 #include <raylib.h>
 #include <iostream>
 #include "Application.hpp"
+#include "ECSManager.hpp"
+#include "GizmoComponent.hpp"
 #include "RayCollision.hpp"
+#include "RenderComponent.hpp"
+#include "TransformHelper.hpp"
 
 input::InputManager::InputManager(app::Application& app) : _app(app) {
 }
@@ -21,25 +25,44 @@ void input::InputManager::handleKeyboardInput() {
   handleCameraMovement();
 }
 
-void input::InputManager::handleObjectSelection() {
-  if (!canProcessMouse())
+void input::InputManager::handleEntitySelection() {
+  if (!canProcessMouse() || _app.isViewportActive())
     return;
-  Ray ray = GetMouseRay(GetMousePosition(), _app.getCamera().getCamera());
-  const auto& shapes = _app.getScene().getShapes();
-  int selectedIndex = -1;
-  for (size_t i = 0; i < shapes.size(); ++i) {
-    BoundingBox box = shapes[i]->getBoundingBox();
-    raylib::RayCollision collision = GetRayCollisionBox(ray, box);
 
-    if (collision.hit) {
-      selectedIndex = i;
-      break;
+  Ray ray = GetMouseRay(GetMousePosition(), _app.getCamera().getCamera());
+  auto& ecsManager = _app.getECSManager();
+  auto& selectionSystem = _app.getSelectionSystem();
+
+  Entity selectedEntity = 0;
+  bool entityFound = false;
+
+  std::vector<Entity> entities = _app.getScene().getAllEntities();
+
+  for (Entity entity : entities) {
+    try {
+      auto& render = ecsManager.getComponent<ecs::RenderComponent>(entity);
+
+      if (!render.visible)
+        continue;
+
+      BoundingBox box =
+          ecs::TransformHelper::getBoundingBox(entity, &ecsManager);
+      raylib::RayCollision collision = GetRayCollisionBox(ray, box);
+
+      if (collision.hit) {
+        selectedEntity = entity;
+        entityFound = true;
+        break;
+      }
+    } catch (const std::exception& e) {
+      continue;
     }
   }
-  if (selectedIndex != -1) {
-    _app.getScene().setSelectedObject(selectedIndex);
+
+  if (entityFound) {
+    _app.getScene().setSelectedEntity(selectedEntity);
   } else {
-    _app.getScene().setSelectedObject(selectedIndex);
+    selectionSystem.deselectAll();
   }
 }
 
@@ -51,15 +74,38 @@ void input::InputManager::handleMouseInput() {
   bool isMousePressed = IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
   bool isMouseDown = IsMouseButtonDown(MOUSE_BUTTON_LEFT);
 
-  _app.getViewportManager().handleGizmoInteraction(_app.getScene(), mousePos,
-                                                   isMousePressed, isMouseDown);
+  bool gizmoInteraction = false;
+  if (_app.getSelectionSystem().hasSelection()) {
+    Entity selectedEntity = _app.getSelectionSystem().getSelectedEntity();
+
+    if (isMouseInViewport(mousePos)) {
+      auto& gizmo = _app.getECSManager().getComponent<ecs::GizmoComponent>(
+          selectedEntity);
+      auto transform = ecs::TransformHelper::getPosition(selectedEntity,
+                                                         &_app.getECSManager());
+
+      ecs::GizmoAxis hoveredAxis = _app.getGizmoSystem().getHoveredAxis(
+          transform, _app.getCamera().getCamera(), mousePos, gizmo.size,
+          gizmo.cubeSize);
+
+      if (hoveredAxis != ecs::GizmoAxis::NONE || gizmo.isDragging) {
+        gizmoInteraction = true;
+      }
+    }
+  }
+
+  _app.getViewportManager().handleGizmoInteraction(
+      mousePos, isMousePressed, isMouseDown, &_app.getECSManager(),
+      &_app.getGizmoSystem(), &_app.getSelectionSystem());
 
   if (!isMouseDown) {
-    _app.getViewportManager().updateGizmo(_app.getScene(), _app.getCamera(),
-                                          mousePos);
+    _app.getViewportManager().updateGizmo(
+        _app.getCamera(), mousePos, &_app.getECSManager(),
+        &_app.getGizmoSystem(), &_app.getSelectionSystem());
   }
-  if (isMousePressed)
-    handleObjectSelection();
+
+  if (isMousePressed && !gizmoInteraction)
+    handleEntitySelection();
 }
 
 void input::InputManager::handleApplicationShortcuts() {
@@ -84,7 +130,7 @@ void input::InputManager::handleApplicationShortcuts() {
         std::cout << "Error saving: " << e.what() << std::endl;
       }
     } else if (IsKeyPressed(KEY_N)) {
-      _app.getScene().clearShapes();
+      _app.getScene().clearEntities();
       std::cout << "New scene created!" << std::endl;
     } else if (IsKeyPressed(KEY_O)) {
       try {
@@ -115,4 +161,9 @@ bool input::InputManager::canProcessKeyboard() const {
 
 bool input::InputManager::canProcessMouse() const {
   return !ImGui::GetIO().WantCaptureMouse;
+}
+
+bool input::InputManager::isMouseInViewport(
+    const raylib::Vector2& mousePos) const {
+  return _app.getViewportManager().isMouseInViewport(mousePos);
 }

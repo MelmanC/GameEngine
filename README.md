@@ -46,3 +46,6 @@ before submitting a pull request.
 # License
 This project is licensed under the MIT License
 
+# Special Thanks
+- [A Simple Entity Component System (ECS) by Austin Morlan](https://austinmorlan.com/posts/entity_component_system/)
+
