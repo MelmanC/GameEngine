@@ -80,7 +80,7 @@ void ui::Gui::drawEntityInfo(Entity entity, ecs::ECSManager *ecsManager) {
                               50.0f);
       ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
 
-      guiAlign("Entity ID");
+      guiAlign("ID");
       ImGui::Text("%u", entity);
 
       guiAlign("Name");
@@ -285,44 +285,43 @@ void ui::Gui::drawHierarchyPanel(app::Application &app) {
 
     std::vector<Entity> entities = app.getScene().getAllEntities();
 
-    ImGui::Text("Scene Entities (%zu)", entities.size());
-    ImGui::Separator();
-
     Entity entityToDelete = 0;
     bool shouldDelete = false;
 
-    for (size_t i = 0; i < entities.size(); ++i) {
-      Entity entity = entities[i];
+    if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+      for (size_t i = 0; i < entities.size(); ++i) {
+        Entity entity = entities[i];
 
-      auto &nameComp = ecsManager.getComponent<ecs::NameComponent>(entity);
-      auto &selectionComp =
-          ecsManager.getComponent<ecs::SelectionComponent>(entity);
+        auto &nameComp = ecsManager.getComponent<ecs::NameComponent>(entity);
+        auto &selectionComp =
+            ecsManager.getComponent<ecs::SelectionComponent>(entity);
 
-      std::string objectName = nameComp.name + "##" + std::to_string(entity);
+        std::string objectName = nameComp.name + "##" + std::to_string(entity);
 
-      if (ImGui::Selectable(objectName.c_str(), selectionComp.selected)) {
-        app.getScene().setSelectedEntity(entity);
-      }
+        if (ImGui::Selectable(objectName.c_str(), selectionComp.selected)) {
+          app.getScene().setSelectedEntity(entity);
+        }
 
-      if (ImGui::BeginPopupContextItem()) {
-        if (ImGui::MenuItem("Delete")) {
-          if (app.getScene().getSelectedEntity() == entity) {
-            app.getSelectionSystem().deselectAll();
+        if (ImGui::BeginPopupContextItem()) {
+          if (ImGui::MenuItem("Delete")) {
+            if (app.getScene().getSelectedEntity() == entity) {
+              app.getSelectionSystem().deselectAll();
+            }
+            entityToDelete = entity;
+            shouldDelete = true;
           }
-          entityToDelete = entity;
-          shouldDelete = true;
+          if (ImGui::MenuItem("Duplicate")) {
+            // TODO: Implement duplication logic
+          }
+          auto &renderComp =
+              ecsManager.getComponent<ecs::RenderComponent>(entity);
+          if (ImGui::MenuItem("Toggle Visibility")) {
+            renderComp.visible = !renderComp.visible;
+          }
+          ImGui::EndPopup();
         }
-        if (ImGui::MenuItem("Duplicate")) {
-          // TODO: Implement duplication logic
-        }
-        ImGui::Separator();
-        auto &renderComp =
-            ecsManager.getComponent<ecs::RenderComponent>(entity);
-        if (ImGui::MenuItem("Toggle Visibility")) {
-          renderComp.visible = !renderComp.visible;
-        }
-        ImGui::EndPopup();
       }
+      ImGui::TreePop();
     }
 
     /* We delete the entity only after the loop to avoid
@@ -330,8 +329,6 @@ void ui::Gui::drawHierarchyPanel(app::Application &app) {
     if (shouldDelete) {
       ecsManager.destroyEntity(entityToDelete);
     }
-
-    ImGui::Separator();
   }
   ImGui::End();
 }
