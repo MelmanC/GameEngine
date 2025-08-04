@@ -24,6 +24,9 @@ namespace ecs {
           case ShapeType::PLANE:
             return ecsManager->getComponent<PlaneTransformComponent>(entity)
                 .position;
+          case ShapeType::MODEL:
+            return ecsManager->getComponent<ModelTransformComponent>(entity)
+                .position;
           default:
             return {0, 0, 0};
         }
@@ -48,6 +51,9 @@ namespace ecs {
             break;
           case ShapeType::PLANE:
             ecsManager->getComponent<PlaneTransformComponent>(entity).position =
+                position;
+          case ShapeType::MODEL:
+            ecsManager->getComponent<ModelTransformComponent>(entity).position =
                 position;
             break;
         }
@@ -76,6 +82,9 @@ namespace ecs {
           case ShapeType::PLANE:
             return ecsManager->getComponent<PlaneTransformComponent>(entity)
                 .rotation;
+          case ShapeType::MODEL:
+            return ecsManager->getComponent<ModelTransformComponent>(entity)
+                .rotation;
           default:
             return {0, 0, 0};
         }
@@ -101,6 +110,9 @@ namespace ecs {
           case ShapeType::PLANE:
             ecsManager->getComponent<PlaneTransformComponent>(entity).rotation =
                 rotation;
+          case ShapeType::MODEL:
+            ecsManager->getComponent<ModelTransformComponent>(entity).rotation =
+                rotation;
             break;
         }
       }
@@ -122,6 +134,16 @@ namespace ecs {
           case ShapeType::PLANE:
             return ecsManager->getComponent<PlaneTransformComponent>(entity)
                 .getBoundingBox();
+          case ShapeType::MODEL: {
+            auto& modelTransform =
+                ecsManager->getComponent<ModelTransformComponent>(entity);
+
+            auto& modelComponent =
+                ecsManager->getComponent<ModelComponent>(entity);
+            if (modelComponent.isLoaded && modelComponent.model) {
+              return modelTransform.getBoundingBox(*modelComponent.model);
+            }
+          }
           default:
             return {{0, 0, 0}, {0, 0, 0}};
         }
@@ -150,6 +172,11 @@ namespace ecs {
           case ShapeType::PLANE: {
             auto& transform =
                 ecsManager->getComponent<PlaneTransformComponent>(entity);
+            return {&transform.position.x, &transform.rotation.x};
+          }
+          case ShapeType::MODEL: {
+            auto& transform =
+                ecsManager->getComponent<ModelTransformComponent>(entity);
             return {&transform.position.x, &transform.rotation.x};
           }
           default:

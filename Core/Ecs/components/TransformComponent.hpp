@@ -1,6 +1,8 @@
 #pragma once
 
 #include "BoundingBox.hpp"
+#include "Model.hpp"
+#include "ModelComponent.hpp"
 #include "Vector2.hpp"
 #include "Vector3.hpp"
 
@@ -47,6 +49,25 @@ namespace ecs {
         return raylib::BoundingBox{
             position - raylib::Vector3{size.x / 2, 0, size.y / 2},
             position + raylib::Vector3{size.x / 2, 0, size.y / 2}};
+      }
+  };
+
+  struct ModelTransformComponent : public TransformComponent {
+      raylib::Vector3 scale{1, 1, 1};
+
+      raylib::BoundingBox getBoundingBox(const raylib::Model& model) const {
+        raylib::BoundingBox modelBox = GetModelBoundingBox(model);
+        raylib::Vector3 size = Vector3Subtract(modelBox.max, modelBox.min);
+        raylib::Vector3 scaledSize = Vector3Multiply(size, scale);
+
+        raylib::Vector3 center =
+            Vector3Add(modelBox.min, Vector3Scale(size, 0.5f));
+        raylib::Vector3 scaledCenter = Vector3Multiply(center, scale);
+        raylib::Vector3 transformedCenter = Vector3Add(position, scaledCenter);
+
+        return raylib::BoundingBox{
+            Vector3Subtract(transformedCenter, Vector3Scale(scaledSize, 0.5f)),
+            Vector3Add(transformedCenter, Vector3Scale(scaledSize, 0.5f))};
       }
   };
 }  // namespace ecs

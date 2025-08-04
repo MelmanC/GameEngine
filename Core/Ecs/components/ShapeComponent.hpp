@@ -8,6 +8,7 @@ namespace ecs {
     SPHERE,
     CYLINDER,
     PLANE,
+    MODEL
   };
 
   struct ShapeComponent {
@@ -23,6 +24,8 @@ namespace ecs {
             return "Plane";
           case ShapeType::CYLINDER:
             return "Cylinder";
+          case ShapeType::MODEL:
+            return "Model";
           default:
             return "Unknown";
         }

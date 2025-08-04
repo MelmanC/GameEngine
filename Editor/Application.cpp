@@ -6,6 +6,7 @@
 #include "EntityManager.hpp"
 #include "GizmoComponent.hpp"
 #include "GizmoSystem.hpp"
+#include "ModelComponent.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "SelectionComponent.hpp"
@@ -56,6 +57,8 @@ void app::Application::initECS() {
   _ecsManager->registerComponent<ecs::SphereTransformComponent>();
   _ecsManager->registerComponent<ecs::CylinderTransformComponent>();
   _ecsManager->registerComponent<ecs::PlaneTransformComponent>();
+  _ecsManager->registerComponent<ecs::ModelTransformComponent>();
+  _ecsManager->registerComponent<ecs::ModelComponent>();
   _ecsManager->registerComponent<ecs::RenderComponent>();
   _ecsManager->registerComponent<ecs::ShapeComponent>();
   _ecsManager->registerComponent<ecs::NameComponent>();

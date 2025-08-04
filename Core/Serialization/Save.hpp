@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <raylib-cpp.hpp>
 #include "EntityManager.hpp"
+#include "ModelComponent.hpp"
 
 namespace scene {
   class Scene;
@@ -39,5 +40,7 @@ namespace jsonfile {
 
       void saveNameComponent(const Entity& entity, nlohmann::json& jsonData,
                              ecs::ECSManager* ecsManager) const;
+
+      nlohmann::json saveModelComponent(const ecs::ModelComponent& model) const;
   };
 }  // namespace jsonfile

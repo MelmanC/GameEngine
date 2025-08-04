@@ -49,6 +49,11 @@ void jsonfile::Save::saveEntityToJson(const Entity& entity,
   saveRenderComponent(entity, entityData, ecsManager);
   saveShapeComponent(entity, entityData, ecsManager);
   saveNameComponent(entity, entityData, ecsManager);
+  auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
+  if (shape.type == ecs::ShapeType::MODEL) {
+    auto& model = ecsManager->getComponent<ecs::ModelComponent>(entity);
+    entityData["model"] = saveModelComponent(model);
+  }
 
   jsonData["entities"].push_back(entityData);
 }
@@ -104,6 +109,14 @@ void jsonfile::Save::saveTransformComponent(const Entity& entity,
                                {"y", transform.size.y}};
       break;
     }
+    case ecs::ShapeType::MODEL: {
+      auto& transform =
+          ecsManager->getComponent<ecs::ModelTransformComponent>(entity);
+      transformData["scale"] = {{"x", transform.scale.x},
+                                {"y", transform.scale.y},
+                                {"z", transform.scale.z}};
+      break;
+    }
     default:
       throw std::runtime_error("Unknown shape type for entity " +
                                std::to_string(entity));
@@ -148,4 +161,12 @@ void jsonfile::Save::saveNameComponent(const Entity& entity,
 
   auto& name = ecsManager->getComponent<ecs::NameComponent>(entity);
   jsonData["name"] = {{"name", name.name}, {"type", name.type}};
+}
+
+nlohmann::json jsonfile::Save::saveModelComponent(
+    const ecs::ModelComponent& model) const {
+  nlohmann::json modelData;
+  modelData["modelPath"] = model.modelPath;
+
+  return modelData;
 }

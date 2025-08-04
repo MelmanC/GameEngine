@@ -158,6 +158,16 @@ void ui::Gui::drawTransformInfo(Entity entity, ecs::ECSManager *ecsManager) {
           ImGui::InputFloat2("##PlaneSize", &planeComp.size.x);
           break;
         }
+        case ecs::ShapeType::MODEL: {
+          auto &modelComp =
+              ecsManager->getComponent<ecs::ModelTransformComponent>(entity);
+          guiAlign("Scale");
+          if (ImGui::InputFloat3("##ModelScale", &modelComp.scale.x)) {
+            modelComp.scale.y = modelComp.scale.x;
+            modelComp.scale.z = modelComp.scale.x;
+          }
+          break;
+        }
       }
 
       ImGui::EndTable();
@@ -264,6 +274,16 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
         shape.createPlaneEntity({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f},
                                 raylib::Color::White(), "New Plane",
                                 &app.getECSManager());
+      }
+      if (ImGui::MenuItem("Model")) {
+        std::string modelPath = "./model/scene.gltf";
+        if (FileExists(modelPath.c_str())) {
+          shape.createModelEntity({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f},
+                                  modelPath, raylib::Color::White(),
+                                  "New Model", &app.getECSManager());
+        } else {
+          std::cout << "Model file does not exist: " << modelPath << std::endl;
+        }
       }
       ImGui::EndMenu();
     }

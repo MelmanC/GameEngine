@@ -6,6 +6,7 @@
 #include "ECSManager.hpp"
 #include "GizmoComponent.hpp"
 #include "GizmoSystem.hpp"
+#include "ModelComponent.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "Scene.hpp"
@@ -46,6 +47,11 @@ void jsonfile::Load::loadEntityFromJson(const nlohmann::json& entityData,
   loadShapeComponent(entity, shapeType, ecsManager);
   loadNameComponent(entityData, entity, ecsManager);
   loadDefaultComponents(entity, ecsManager);
+
+  if (shapeType == ecs::ShapeType::MODEL) {
+    if (entityData.contains("model"))
+      loadModelComponent(entityData["model"], entity, ecsManager);
+  }
 }
 
 ecs::ShapeType jsonfile::Load::getShapeTypeFromJson(
@@ -65,6 +71,8 @@ ecs::ShapeType jsonfile::Load::getShapeTypeFromJson(
     return ecs::ShapeType::CYLINDER;
   if (shapeTypeStr == "Plane")
     return ecs::ShapeType::PLANE;
+  if (shapeTypeStr == "Model")
+    return ecs::ShapeType::MODEL;
 
   return ecs::ShapeType::CUBE;
 }
@@ -98,6 +106,11 @@ void jsonfile::Load::loadTransformComponent(const nlohmann::json& entityData,
     case ecs::ShapeType::PLANE:
       createPlaneTransform(entity, position, rotation, transformData,
                            ecsManager);
+      break;
+    case ecs::ShapeType::MODEL:
+      createModelTransform(entity, position, rotation, transformData,
+                           ecsManager);
+
       break;
   }
 }
@@ -150,6 +163,18 @@ void jsonfile::Load::createPlaneTransform(Entity entity,
   ecsManager->addComponent(entity, transform);
 }
 
+void jsonfile::Load::createModelTransform(Entity entity,
+                                          const raylib::Vector3& position,
+                                          const raylib::Vector3& rotation,
+                                          const nlohmann::json& transformData,
+                                          ecs::ECSManager* ecsManager) {
+  ecs::ModelTransformComponent transform;
+  transform.position = position;
+  transform.rotation = rotation;
+  transform.scale = getVector3FromJson(transformData, "scale", {1, 1, 1});
+  ecsManager->addComponent(entity, transform);
+}
+
 void jsonfile::Load::loadRenderComponent(const nlohmann::json& entityData,
                                          Entity entity,
                                          ecs::ECSManager* ecsManager) {
@@ -195,6 +220,27 @@ void jsonfile::Load::loadDefaultComponents(Entity entity,
 
   ecs::GizmoComponent gizmo;
   ecsManager->addComponent(entity, gizmo);
+}
+
+void jsonfile::Load::loadModelComponent(const nlohmann::json& modelData,
+                                        Entity entity,
+                                        ecs::ECSManager* ecsManager) {
+  ecs::ModelComponent model;
+  model.modelPath = modelData.value("modelPath", "");
+
+  if (!model.modelPath.empty() && FileExists(model.modelPath.c_str())) {
+    model.model =
+        std::make_shared<raylib::Model>(LoadModel(model.modelPath.c_str()));
+    if (model.model->meshCount == 0) {
+      throw std::runtime_error("Model file does not contain any meshes: " +
+                               model.modelPath);
+    }
+    model.isLoaded = true;
+    model.meshCount = model.model->meshCount;
+    model.materialCount = model.model->materialCount;
+  }
+
+  ecsManager->addComponent(entity, model);
 }
 
 raylib::Vector3 jsonfile::Load::getVector3FromJson(

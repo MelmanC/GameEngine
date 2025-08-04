@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include <iostream>
 #include "ECSManager.hpp"
+#include "ModelComponent.hpp"
 #include "RenderComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
@@ -56,11 +57,31 @@ void ecs::RenderSystem::render() {
           DrawPlane(position, size, color);
           break;
         }
+        case ecs::ShapeType::MODEL: {
+          auto &modelTransform =
+              _ecsManager->getComponent<ModelTransformComponent>(entity);
+          auto &modelComponent =
+              _ecsManager->getComponent<ModelComponent>(entity);
+
+          if (!modelComponent.isLoaded && !modelComponent.modelPath.empty()) {
+            modelComponent.model = std::make_unique<raylib::Model>(
+                LoadModel(modelComponent.modelPath.c_str()));
+            modelComponent.isLoaded = true;
+          }
+
+          if (modelComponent.model) {
+            Vector3 position = modelTransform.position;
+            Vector3 scale = modelTransform.scale;
+            Color color = render.color;
+
+            DrawModel(*modelComponent.model, position, scale.x, color);
+          }
+          break;
+        }
         default:
           std::cerr << "Unknown shape type!" << std::endl;
       }
     } catch (const std::exception &e) {
-      // Si on ne peut pas accéder aux composants, on ignore cette entité
       continue;
     }
   }

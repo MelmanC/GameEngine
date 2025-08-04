@@ -30,5 +30,12 @@ namespace shape3D {
                                raylib::Vector2 size, const raylib::Color& color,
                                const std::string& name,
                                ecs::ECSManager* ecsManager);
+
+      Entity createModelEntity(const raylib::Vector3& position,
+                               const raylib::Vector3& scale,
+                               const std::string& modelPath,
+                               const raylib::Color& color,
+                               const std::string& name,
+                               ecs::ECSManager* ecsManager);
   };
 }  // namespace shape3D
