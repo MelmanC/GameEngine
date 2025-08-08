@@ -135,6 +135,45 @@
           "z": 0.0
         }
       }
+    },
+    {
+      "id": 4,
+      "model": {
+        "modelPath": "./model/scene.gltf"
+      },
+      "name": {
+        "name": "Matilda",
+        "type": "Model"
+      },
+      "render": {
+        "color": {
+          "a": 255,
+          "b": 255,
+          "g": 255,
+          "r": 255
+        },
+        "visible": true
+      },
+      "shape": {
+        "type": "Model"
+      },
+      "transform": {
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "rotation": {
+          "x": 0.0,
+          "y": 0.5,
+          "z": 0.0
+        },
+        "scale": {
+          "x": 0.019999999552965164,
+          "y": 0.019999999552965164,
+          "z": 0.019999999552965164
+        }
+      }
     }
   ]
 }

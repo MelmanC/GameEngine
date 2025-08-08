@@ -14,6 +14,8 @@ ui::Gui::Gui(const int width, const int height)
     : _hierarchyPanel(0, 40, 250, height - 40),
       _propertiesPanel(width - 300, 40, 300, height - 40),
       _toolbarPanel(0, 0, width, 40) {
+  ImGui::CreateContext();
+  ImGui::StyleColorsDark();
 }
 
 void ui::Gui::drawCameraInfo(camera::Camera3D &camera, app::Application &app) {
@@ -358,10 +360,8 @@ void ui::Gui::drawPropertiesPanel(camera::Camera3D &camera,
   if (!_showProperties)
     return;
 
-  ImGui::SetNextWindowPos(ImVec2(app.getWidth() - 300, 20),
-                          ImGuiCond_FirstUseEver);
-  ImGui::SetNextWindowSize(ImVec2(300, app.getHeight() - 20),
-                           ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowPos(ImVec2(app.getWidth() - 300, 20), ImGuiCond_Always);
+  ImGui::SetNextWindowSize(ImVec2(300, app.getHeight() - 20), ImGuiCond_Always);
 
   if (ImGui::Begin("Properties", &_showProperties)) {
     auto &ecsManager = app.getECSManager();
@@ -381,8 +381,69 @@ void ui::Gui::drawPropertiesPanel(camera::Camera3D &camera,
   ImGui::End();
 }
 
+void ui::Gui::drawFinderPanel(app::Application &app) {
+  if (!_showFinder)
+    return;
+
+  ImGui::SetNextWindowPos(ImVec2(250, app.getHeight() - 400),
+                          ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowSize(ImVec2(app.getWidth() - 550, 400),
+                           ImGuiCond_FirstUseEver);
+  ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+
+  if (ImGui::Begin("Finder", &_showFinder, ImGuiWindowFlags_NoCollapse)) {
+    ImGui::Columns(2, "finderColumns", true);
+    ImGui::SetColumnWidth(0, 150);
+
+    ImGui::Text("Dossiers :");
+    std::string root = std::filesystem::current_path().string();
+
+    for (const auto &entry : std::filesystem::directory_iterator(root)) {
+      const std::string folderName = entry.path().filename().string();
+
+      if (folderName[0] == '.')
+        continue;
+
+      if (entry.is_directory()) {
+        const std::string folderName = entry.path().filename().string();
+
+        bool selected = (_selectedDirectory == entry.path());
+        if (ImGui::Selectable(folderName.c_str(), selected)) {
+          _selectedDirectory = entry.path();
+        }
+      }
+    }
+
+    ImGui::NextColumn();
+
+    ImGui::Text("%s", _selectedDirectory.filename().string().c_str());
+    ImGui::Separator();
+
+    if (std::filesystem::exists(_selectedDirectory)) {
+      for (const auto &entry :
+           std::filesystem::directory_iterator(_selectedDirectory)) {
+        const std::string name = entry.path().filename().string();
+        if (name[0] == '.')
+          continue;
+        if (entry.is_directory()) {
+          ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%s",
+                             name.c_str());
+        } else {
+          ImGui::Text("%s", name.c_str());
+        }
+      }
+    }
+
+    ImGui::Columns(1);
+  }
+
+  ImGui::End();
+  ImGui::PopStyleColor();
+}
+
 void ui::Gui::drawInterface(camera::Camera3D &camera, app::Application &app) {
   drawMainMenuBar(app);
   drawHierarchyPanel(app);
   drawPropertiesPanel(camera, app);
+  drawFinderPanel(app);
 }
