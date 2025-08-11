@@ -7,7 +7,7 @@
   
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![C++](https://img.shields.io/badge/C++-20-lightblue.svg)](https://isocpp.org/)
-  [Platform](https://img.shields.io/badge/Plateform-Macos-white?style=flat)
+  ![Platform](https://img.shields.io/badge/Plateform-Macos-white?style=flat)
   [![Build System](https://img.shields.io/badge/Build-CMake-red.svg)](https://cmake.org/)
   [![Graphics](https://img.shields.io/badge/Graphics-Raylib-white?style=flat)](https://www.raylib.com/)
   
