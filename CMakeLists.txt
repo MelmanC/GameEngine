@@ -14,13 +14,14 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Core
     ${CMAKE_SOURCE_DIR}/Editor
     ${CMAKE_SOURCE_DIR}/Editor/3D
+    ${CMAKE_SOURCE_DIR}/Editor/Camera
     ${CMAKE_SOURCE_DIR}/Editor/Gui
-    ${CMAKE_SOURCE_DIR}/Core/Camera
     ${CMAKE_SOURCE_DIR}/Core/Serialization
     ${CMAKE_SOURCE_DIR}/Core/Ecs
     ${CMAKE_SOURCE_DIR}/Core/Ecs/systems
     ${CMAKE_SOURCE_DIR}/Core/Ecs/components
     ${CMAKE_SOURCE_DIR}/Assets
+    ${CMAKE_SOURCE_DIR}/Runtime
 )
 
 find_package(raylib QUIET)
@@ -44,6 +45,23 @@ if(NOT nlohmann_json_FOUND)
     message(FATAL_ERROR "nlohmann_json not found")
 endif()
 
+find_package(Lua  REQUIRED)
+if(NOT Lua_FOUND)
+    message(FATAL_ERROR "Lua not found")
+endif()
+
+find_package(sol2 QUIET)
+if(NOT sol2_FOUND)
+    include(FetchContent)
+    FetchContent_Declare(
+        sol2
+        GIT_REPOSITORY https://github.com/ThePhD/sol2.git
+        GIT_TAG v3.3.0
+)
+    FetchContent_MakeAvailable(sol2)
+endif()
+
+
 FetchContent_Declare(imgui_external
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
     GIT_TAG docking
@@ -55,6 +73,7 @@ FetchContent_Declare(rlimgui_external
     GIT_TAG main
 )
 FetchContent_MakeAvailable(rlimgui_external)
+
 
 add_library(imgui
     ${imgui_external_SOURCE_DIR}/imgui.cpp
@@ -73,17 +92,23 @@ target_include_directories(rlimgui PUBLIC
 )
 target_link_libraries(rlimgui PUBLIC imgui raylib)
 
+
+
 add_library(EngineCore
     Core/Scene.cpp
     Core/Serialization/Load.cpp
     Core/Serialization/Save.cpp
-    Core/Camera/Camera3D.cpp
     Core/Ecs/EntityManager.cpp
     Core/Ecs/systems/RenderSystem.cpp
     Core/Ecs/systems/SelectionSystem.cpp
     Core/Ecs/systems/GizmoSystem.cpp
 )
-target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json imgui rlimgui)
+
+target_include_directories(EngineCore
+    PUBLIC
+        ${LUA_INCLUDE_DIR}
+)
+target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json ${LUA_LIBRARIES} sol2)
 
 add_executable(EditorApp
     Editor/main.cpp
@@ -92,13 +117,19 @@ add_executable(EditorApp
     Editor/InputManager.cpp
     Editor/Renderer.cpp
     Editor/ViewportManager.cpp
+    Editor/Camera/Camera3D.cpp
     Editor/Application.cpp
     Editor/3D/Shape.cpp
 )
 target_link_libraries(EditorApp raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore imgui rlimgui)
 
-# Runtime (commented out)
-# add_executable(Runtime
-#     Runtime/main.cpp
-# )
-# target_link_libraries(Runtime EngineCore raylib)
+add_executable(RuntimePlayer
+    Runtime/main.cpp
+    Runtime/PlayerApplication.cpp
+)
+
+target_include_directories(RuntimePlayer
+    PUBLIC
+        ${LUA_INCLUDE_DIR}
+)
+target_link_libraries(RuntimePlayer raylib raylib_cpp nlohmann_json::nlohmann_json EngineCore ${LUA_LIBRARIES} sol2)

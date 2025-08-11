@@ -1,6 +1,4 @@
 #include "Camera3D.hpp"
-#include <imgui.h>
-#include <rlImGui.h>
 
 camera::Camera3D::Camera3D() {
   _camera = raylib::Camera();
@@ -18,7 +16,7 @@ void camera::Camera3D::update(bool isViewportActive) {
 }
 
 void camera::Camera3D::handleMouseLook() {
-  if (!ImGui::GetIO().WantCaptureMouse && IsCursorHidden()) {
+  if (IsCursorHidden()) {
     float mouseSensitivity = 0.003f;
     raylib::Vector2 mouseMovement = GetMouseDelta();
 
