@@ -115,6 +115,7 @@ Entity shape3D::Shape::createModelEntity(const raylib::Vector3& position,
   ecs::ModelComponent modelComponent;
   modelComponent.modelPath = modelPath;
   modelComponent.isLoaded = false;
+
   ecsManager->addComponent(entity, std::move(modelComponent));
 
   return entity;

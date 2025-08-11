@@ -2,6 +2,7 @@
 #include <iostream>
 #include "3D/Shape.hpp"
 #include "Application.hpp"
+#include "Icons.h"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "SelectionComponent.hpp"
@@ -17,8 +18,8 @@ ui::Gui::Gui(const int width, const int height)
       _toolbarPanel(0, 0, width, 40) {
   ImGui::CreateContext();
   ImGui::StyleColorsDark();
-  _folderIcon = LoadTexture("./Assets/folder.png");  // TODO : Macro here
-  _fileIcon = LoadTexture("./Assets/document.png");  // TODO : Macro here
+  _folderIcon = LoadTexture(FOLDER_ICON);
+  _fileIcon = LoadTexture(FILE_ICON);
 }
 
 ui::Gui::~Gui() {
@@ -285,19 +286,8 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
                                 raylib::Color::White(), "New Plane",
                                 &app.getECSManager());
       }
-      if (ImGui::MenuItem("Model")) {
-        std::string modelPath = "./model/scene.gltf";
-        if (FileExists(modelPath.c_str())) {
-          shape.createModelEntity({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f},
-                                  modelPath, raylib::Color::White(),
-                                  "New Model", &app.getECSManager());
-        } else {
-          std::cout << "Model file does not exist: " << modelPath << std::endl;
-        }
-      }
       ImGui::EndMenu();
     }
-
     ImGui::EndMainMenuBar();
   }
 }
@@ -449,11 +439,19 @@ void ui::Gui::drawFinderPanel(app::Application &app) {
         } else {
           ImGui::Image((ImTextureID)(intptr_t)_fileIcon.id, ImVec2(16, 16));
           ImGui::SameLine();
-          ImGui::Text("%s", name.c_str());
+          if (ImGui::Selectable(name.c_str(), false, ImGuiSelectableFlags_None,
+                                ImVec2(0, 0))) {
+            shape3D::Shape shape;
+            if (entry.path().extension() == ".gltf" ||
+                entry.path().extension() == ".glb") {
+              shape.createModelEntity(
+                  {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, entry.path().string(),
+                  raylib::Color::White(), name, &app.getECSManager());
+            }
+          }
         }
       }
     }
-
     ImGui::Columns(1);
   }
 

@@ -14,6 +14,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Core
     ${CMAKE_SOURCE_DIR}/Editor
     ${CMAKE_SOURCE_DIR}/Editor/3D
+    ${CMAKE_SOURCE_DIR}/Editor/Gui
     ${CMAKE_SOURCE_DIR}/Core/Camera
     ${CMAKE_SOURCE_DIR}/Core/Serialization
     ${CMAKE_SOURCE_DIR}/Core/Ecs
@@ -87,7 +88,7 @@ target_link_libraries(EngineCore raylib raylib_cpp nlohmann_json::nlohmann_json 
 add_executable(EditorApp
     Editor/main.cpp
     Editor/Window.cpp
-    Editor/Gui.cpp
+    Editor/Gui/Gui.cpp
     Editor/InputManager.cpp
     Editor/Renderer.cpp
     Editor/ViewportManager.cpp
