@@ -6,6 +6,7 @@
 #include "RenderComponent.hpp"
 #include "SelectionComponent.hpp"
 #include "ShapeComponent.hpp"
+#include "Texture.hpp"
 #include "TransformComponent.hpp"
 #include "TransformHelper.hpp"
 #include "imgui.h"
@@ -16,6 +17,12 @@ ui::Gui::Gui(const int width, const int height)
       _toolbarPanel(0, 0, width, 40) {
   ImGui::CreateContext();
   ImGui::StyleColorsDark();
+  _folderIcon = LoadTexture("./Assets/folder.png");  // TODO : Macro here
+  _fileIcon = LoadTexture("./Assets/document.png");  // TODO : Macro here
+}
+
+ui::Gui::~Gui() {
+  UnloadTexture(_folderIcon);
 }
 
 void ui::Gui::drawCameraInfo(camera::Camera3D &camera, app::Application &app) {
@@ -245,6 +252,7 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
     if (ImGui::BeginMenu("View")) {
       ImGui::MenuItem("Hierarchy", nullptr, &_showHierarchy);
       ImGui::MenuItem("Properties", nullptr, &_showProperties);
+      ImGui::MenuItem("Finder", nullptr, &_showFinder);
       ImGui::Separator();
       if (ImGui::BeginMenu("Panel Visibility")) {
         ImGui::MenuItem("Entity Info", nullptr, &_showEntities);
@@ -404,11 +412,15 @@ void ui::Gui::drawFinderPanel(app::Application &app) {
       if (folderName[0] == '.')
         continue;
 
+      bool selected = (_selectedDirectory == entry.path());
+
       if (entry.is_directory()) {
         const std::string folderName = entry.path().filename().string();
+        ImGui::Image((ImTextureID)(intptr_t)_folderIcon.id, ImVec2(16, 16));
+        ImGui::SameLine();
 
-        bool selected = (_selectedDirectory == entry.path());
-        if (ImGui::Selectable(folderName.c_str(), selected)) {
+        if (ImGui::Selectable(folderName.c_str(), selected,
+                              ImGuiSelectableFlags_None, ImVec2(0, 0))) {
           _selectedDirectory = entry.path();
         }
       }
@@ -422,13 +434,21 @@ void ui::Gui::drawFinderPanel(app::Application &app) {
     if (std::filesystem::exists(_selectedDirectory)) {
       for (const auto &entry :
            std::filesystem::directory_iterator(_selectedDirectory)) {
+        if (_selectedDirectory == root)
+          continue;
         const std::string name = entry.path().filename().string();
         if (name[0] == '.')
           continue;
         if (entry.is_directory()) {
-          ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "%s",
-                             name.c_str());
+          ImGui::Image((ImTextureID)(intptr_t)_folderIcon.id, ImVec2(16, 16));
+          ImGui::SameLine();
+          if (ImGui::Selectable(name.c_str(), false, ImGuiSelectableFlags_None,
+                                ImVec2(0, 0))) {
+            _selectedDirectory = entry.path();
+          }
         } else {
+          ImGui::Image((ImTextureID)(intptr_t)_fileIcon.id, ImVec2(16, 16));
+          ImGui::SameLine();
           ImGui::Text("%s", name.c_str());
         }
       }

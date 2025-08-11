@@ -18,7 +18,7 @@ namespace ui {
     public:
       Gui(const int width, const int height);
 
-      ~Gui() = default;
+      ~Gui();
 
       void drawInterface(camera::Camera3D &camera, app::Application &app);
 
@@ -47,6 +47,9 @@ namespace ui {
       raylib::Rectangle _propertiesPanel;
       raylib::Rectangle _toolbarPanel;
       // raylib::Rectangle _finderPanel;
+
+      raylib::Texture2D _folderIcon;
+      raylib::Texture2D _fileIcon;
 
       bool _showHierarchy = true;
       bool _showProperties = true;
