@@ -1,6 +1,18 @@
-# rlEngine
-
-rlEngine is a small engine built on top of [raylib](https://www.raylib.com/) (cpp wrapper) to help you create games in C++.
+<div align="center">
+  <img src="https://github.com/raysan5/raylib/raw/master/logo/raylib_logo_animation.gif" alt="TinyRequest Logo" width="128" height="128">
+  
+  # rlEngine
+  
+  **A lightweight Engine**
+  
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![C++](https://img.shields.io/badge/C++-20-lightblue.svg)](https://isocpp.org/)
+  [![Platform](https://img.shields.io/badge/Plateform-Macos-white?style=flat)]
+  [![Build System](https://img.shields.io/badge/Build-CMake-red.svg)](https://cmake.org/)
+  [![Graphics](https://img.shields.io/badge/Graphics-Raylib-white?style=flat)](https://www.raylib.com/)
+  
+  ![Engine Screenshot](Assets/screenshots/screenshot.png)
+</div>
 
 ## WARNING
 At this moment, the engine is an editor that allows you to create scenes, add entities, and edit their properties.
