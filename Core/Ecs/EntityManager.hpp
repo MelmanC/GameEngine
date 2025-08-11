@@ -28,6 +28,10 @@ namespace ecs {
 
       std::vector<Entity> getAllLivingEntities() const;
 
+      int getEntityCount() const {
+        return _livingEntityCount;
+      }
+
     private:
       std::queue<Entity> _poolEntitiesIDs;
 

@@ -67,6 +67,10 @@ namespace app {
         return *_gizmoSystem;
       }
 
+      int getEntityCount() const {
+        return _ecsManager->getEntityCount();
+      }
+
     private:
       void update();
       void render();

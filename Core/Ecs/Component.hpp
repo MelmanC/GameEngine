@@ -52,6 +52,10 @@ namespace ecs {
         return _componentArray[_entityToIndexMap[entityId]];
       }
 
+      bool hasData(Entity entityId) const {
+        return _entityToIndexMap.find(entityId) != _entityToIndexMap.end();
+      }
+
       void entityDestroyed(Entity entityId) override {
         if (_entityToIndexMap.find(entityId) != _entityToIndexMap.end()) {
           removeData(entityId);
@@ -65,6 +69,6 @@ namespace ecs {
 
       std::unordered_map<size_t, Entity> _indexToEntityMap;
 
-      size_t _size;
+      size_t _size = 0;
   };
 }  // namespace ecs

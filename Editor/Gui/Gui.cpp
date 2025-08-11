@@ -50,7 +50,7 @@ void ui::Gui::drawCameraInfo(camera::Camera3D &camera, app::Application &app) {
 
   ImGui::Separator();
   ImGui::Text("Scene Stats:");
-  int entityCount = 0;
+  int entityCount = app.getEntityCount();
   auto &ecsManager = app.getECSManager();
   ImGui::Text("Entities: %d", entityCount);
 

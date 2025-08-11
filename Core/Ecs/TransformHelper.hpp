@@ -52,6 +52,7 @@ namespace ecs {
           case ShapeType::PLANE:
             ecsManager->getComponent<PlaneTransformComponent>(entity).position =
                 position;
+            break;
           case ShapeType::MODEL:
             ecsManager->getComponent<ModelTransformComponent>(entity).position =
                 position;
@@ -110,6 +111,7 @@ namespace ecs {
           case ShapeType::PLANE:
             ecsManager->getComponent<PlaneTransformComponent>(entity).rotation =
                 rotation;
+            break;
           case ShapeType::MODEL:
             ecsManager->getComponent<ModelTransformComponent>(entity).rotation =
                 rotation;

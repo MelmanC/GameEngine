@@ -45,6 +45,12 @@ namespace ecs {
         return getComponentArray<T>()->getData(entityId);
       }
 
+      template <typename T>
+      bool hasComponent(Entity entityId) const {
+        auto arr = const_cast<ComponentManager *>(this)->getComponentArray<T>();
+        return arr->hasData(entityId);
+      }
+
       void entityDestroyed(Entity entityId) {
         for (auto &pair : _componentArrays) {
           pair.second->entityDestroyed(entityId);
@@ -57,7 +63,7 @@ namespace ecs {
       std::unordered_map<ComponentType, std::shared_ptr<IComponentArray>>
           _componentArrays;
 
-      ComponentType _nextComponentType;
+      ComponentType _nextComponentType = 0;
 
       template <typename T>
       std::shared_ptr<Component<T>> getComponentArray() {

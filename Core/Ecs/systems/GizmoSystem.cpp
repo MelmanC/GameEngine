@@ -14,27 +14,27 @@ void ecs::GizmoSystem::drawGizmos() {
     return;
 
   for (Entity entity : _entities) {
-    try {
-      auto& gizmo = _ecsManager->getComponent<GizmoComponent>(entity);
-      auto& selection = _ecsManager->getComponent<SelectionComponent>(entity);
-
-      if (selection.selected) {
-        raylib::Vector3 position =
-            TransformHelper::getPosition(entity, _ecsManager);
-
-        switch (gizmo.mode) {
-          case GizmoMode::TRANSLATE:
-            drawTranslationGizmo(position, gizmo.selectedAxis, gizmo.size,
-                                 gizmo.cubeSize, gizmo.lineThickness);
-            break;
-          case GizmoMode::ROTATE:
-            break;
-          case GizmoMode::SCALE:
-            break;
-        }
-      }
-    } catch (const std::exception& e) {
+    if (!_ecsManager->hasComponent<GizmoComponent>(entity) ||
+        !_ecsManager->hasComponent<SelectionComponent>(entity)) {
       continue;
+    }
+    auto& gizmo = _ecsManager->getComponent<GizmoComponent>(entity);
+    auto& selection = _ecsManager->getComponent<SelectionComponent>(entity);
+
+    if (selection.selected) {
+      raylib::Vector3 position =
+          TransformHelper::getPosition(entity, _ecsManager);
+
+      switch (gizmo.mode) {
+        case GizmoMode::TRANSLATE:
+          drawTranslationGizmo(position, gizmo.selectedAxis, gizmo.size,
+                               gizmo.cubeSize, gizmo.lineThickness);
+          break;
+        case GizmoMode::ROTATE:
+          break;
+        case GizmoMode::SCALE:
+          break;
+      }
     }
   }
 }

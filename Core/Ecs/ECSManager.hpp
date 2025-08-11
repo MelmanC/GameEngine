@@ -28,6 +28,15 @@ namespace ecs {
         return _entityManager->getAllLivingEntities();
       }
 
+      int getEntityCount() const {
+        return _entityManager->getEntityCount();
+      }
+
+      template <typename T>
+      bool hasComponent(Entity entity) {
+        return _componentManager->hasComponent<T>(entity);
+      }
+
       template <typename T>
       void registerComponent() {
         _componentManager->registerComponent<T>();

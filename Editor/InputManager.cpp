@@ -39,23 +39,22 @@ void input::InputManager::handleEntitySelection() {
   std::vector<Entity> entities = _app.getScene().getAllEntities();
 
   for (Entity entity : entities) {
-    try {
-      auto& render = ecsManager.getComponent<ecs::RenderComponent>(entity);
-
-      if (!render.visible)
-        continue;
-
-      BoundingBox box =
-          ecs::TransformHelper::getBoundingBox(entity, &ecsManager);
-      raylib::RayCollision collision = GetRayCollisionBox(ray, box);
-
-      if (collision.hit) {
-        selectedEntity = entity;
-        entityFound = true;
-        break;
-      }
-    } catch (const std::exception& e) {
+    if (!ecsManager.hasComponent<ecs::RenderComponent>(entity) ||
+        !ecsManager.hasComponent<ecs::ShapeComponent>(entity)) {
       continue;
+    }
+    auto& render = ecsManager.getComponent<ecs::RenderComponent>(entity);
+
+    if (!render.visible)
+      continue;
+
+    BoundingBox box = ecs::TransformHelper::getBoundingBox(entity, &ecsManager);
+    raylib::RayCollision collision = GetRayCollisionBox(ray, box);
+
+    if (collision.hit) {
+      selectedEntity = entity;
+      entityFound = true;
+      break;
     }
   }
 
