@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/raysan5/raylib/raw/master/logo/raylib_logo_animation.gif" alt="TinyRequest Logo" width="128" height="128">
+  <img src="https://github.com/raysan5/raylib/raw/master/logo/raylib_logo_animation.gif" alt="Raylib gif" width="128" height="128">
   
   # rlEngine
   
@@ -15,18 +15,20 @@
 </div>
 
 ## WARNING
-At this moment, the engine is an editor that allows you to create scenes, add entities, and edit their properties.
-The goal is to create a game engine that allows you to create games without writing code, but for now, it is just an editor.
-Feel free to contribute to the project.
+This project is in its early stages of development.
+It is not yet ready for production use and may contain bugs or incomplete features. Use at your own risk!
 
 # Features
-- 
+- A simple Entity Component System (ECS) to manage game objects.
+- A scene editor to create and edit scenes.
+- A scripting system to add custom behavior to entities.
 
 # Prerequisites
 - CMake 3.15 or higher 
 - C++20
 - [raylib](https://www.raylib.com/)
 - [nlohmann/json](https://github.com/nlohmann/json)
+- [Lua](https://www.lua.org/)
 
 # Installation
 ## 1. Clone the repository:
@@ -50,6 +52,8 @@ cmake -B .build && cmake --build .build
 - [nlohmann/json](https://github.com/nlohmann/json) - A JSON library for C++.
 - [ImGui](https://github.com/ocornut/imgui) - A bloat-free graphical user interface library for C++.
 - [rlImGui](https://github.com/raylib-extras/rlImGui) - A raylib binding for ImGui.
+- [Lua](https://www.lua.org/) - A scripting language for game development.
+- [Sol3](https://github.com/ThePhD/sol2) - A C++ library binding for Lua, providing a simple and efficient way to integrate Lua scripting into C++ applications.
 
 # Contributing
 Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md)
