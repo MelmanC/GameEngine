@@ -10,6 +10,8 @@
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "Scene.hpp"
+#include "ScriptComponent.hpp"
+#include "ScriptSystem.hpp"
 #include "SelectionComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
@@ -47,6 +49,7 @@ void jsonfile::Load::loadEntityFromJson(const nlohmann::json& entityData,
   loadShapeComponent(entity, shapeType, ecsManager);
   loadNameComponent(entityData, entity, ecsManager);
   loadDefaultComponents(entity, ecsManager);
+  loadScriptComponent(entityData, entity, ecsManager);
 
   if (shapeType == ecs::ShapeType::MODEL) {
     if (entityData.contains("model"))
@@ -241,6 +244,28 @@ void jsonfile::Load::loadModelComponent(const nlohmann::json& modelData,
   }
 
   ecsManager->addComponent(entity, model);
+}
+
+void jsonfile::Load::loadScriptComponent(const nlohmann::json& entityData,
+                                         Entity entity,
+                                         ecs::ECSManager* ecsManager) {
+  if (!entityData.contains("script")) {
+    return;
+  }
+
+  const auto& scriptData = entityData["script"];
+
+  ecs::ScriptComponent script;
+  script.scriptPath = scriptData.value("scriptPath", "");
+  script.enabled = scriptData.value("enabled", true);
+  ecsManager->addComponent(entity, script);
+
+  if (!script.scriptPath.empty()) {
+    auto scriptSystem = ecsManager->getSystem<ecs::ScriptSystem>();
+    if (scriptSystem) {
+      scriptSystem->loadScript(entity, script.scriptPath);
+    }
+  }
 }
 
 raylib::Vector3 jsonfile::Load::getVector3FromJson(

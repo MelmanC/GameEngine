@@ -3,4 +3,10 @@ compile_commands.json
 .build/
 .cache/
 .DS_Store
+
+model/
+
+.luarc.json
+
+RuntimePlayer
 EditorApp

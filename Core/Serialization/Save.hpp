@@ -42,5 +42,8 @@ namespace jsonfile {
                              ecs::ECSManager* ecsManager) const;
 
       nlohmann::json saveModelComponent(const ecs::ModelComponent& model) const;
+
+      void saveScriptComponent(const Entity& entity, nlohmann::json& jsonData,
+                               ecs::ECSManager* ecsManager) const;
   };
 }  // namespace jsonfile

@@ -5,6 +5,7 @@
 #include "Icons.h"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
+#include "ScriptComponent.hpp"
 #include "SelectionComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "Texture.hpp"
@@ -220,6 +221,39 @@ void ui::Gui::drawRenderInfo(Entity entity, ecs::ECSManager *ecsManager) {
   }
 }
 
+void ui::Gui::drawScriptInfo(Entity entity, ecs::ECSManager *ecsManager) {
+  if (!ecsManager)
+    return;
+
+  if (ImGui::CollapsingHeader(
+          "Script Info", _showScripts ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
+    auto &scriptComp = ecsManager->getComponent<ecs::ScriptComponent>(entity);
+
+    if (ImGui::BeginTable("ScriptTable", 2, ImGuiTableFlags_SizingFixedFit)) {
+      ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed,
+                              50.0f);
+      ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+
+      guiAlign("Path");
+      char scriptPath[256];
+      std::strncpy(scriptPath, scriptComp.scriptPath.c_str(),
+                   sizeof(scriptPath) - 1);
+      scriptPath[sizeof(scriptPath) - 1] = '\0';
+      if (ImGui::InputText("##ScriptPath", scriptPath, sizeof(scriptPath))) {
+        scriptComp.scriptPath = scriptPath;
+        scriptComp.state = ecs::ScriptState::NOT_LOADED;
+        scriptComp.hasStarted = false;
+      }
+
+      guiAlign("Enabled");
+      if (ImGui::Checkbox("##ScriptEnabled", &scriptComp.enabled)) {
+      }
+
+      ImGui::EndTable();
+    }
+  }
+}
+
 void ui::Gui::drawMainMenuBar(app::Application &app) {
   if (ImGui::BeginMainMenuBar()) {
     if (ImGui::BeginMenu("File")) {
@@ -259,6 +293,7 @@ void ui::Gui::drawMainMenuBar(app::Application &app) {
         ImGui::MenuItem("Entity Info", nullptr, &_showEntities);
         ImGui::MenuItem("Transform Info", nullptr, &_showTransform);
         ImGui::MenuItem("Materials Info", nullptr, &_showMaterials);
+        ImGui::MenuItem("Scripts Info", nullptr, &_showScripts);
         ImGui::EndMenu();
       }
       ImGui::EndMenu();
@@ -372,6 +407,7 @@ void ui::Gui::drawPropertiesPanel(camera::Camera3D &camera,
       drawEntityInfo(selectedEntity, &ecsManager);
       drawTransformInfo(selectedEntity, &ecsManager);
       drawRenderInfo(selectedEntity, &ecsManager);
+      drawScriptInfo(selectedEntity, &ecsManager);
 
       ImGui::Separator();
     }

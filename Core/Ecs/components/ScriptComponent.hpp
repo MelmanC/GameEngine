@@ -12,7 +12,7 @@ namespace ecs {
   };
 
   struct ScriptComponent {
-      std::string scriptPath;
+      std::string scriptPath = "";
 
       ScriptState state = ScriptState::NOT_LOADED;
       std::string lastError;
@@ -20,6 +20,7 @@ namespace ecs {
       bool hasStarted = false;
 
       int luaRef = -1;
+      bool enabled = false;
   };
 
 }  // namespace ecs

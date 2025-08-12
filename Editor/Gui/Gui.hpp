@@ -35,6 +35,8 @@ namespace ui {
 
       void drawRenderInfo(Entity entity, ecs::ECSManager *ecsManager);
 
+      void drawScriptInfo(Entity entity, ecs::ECSManager *ecsManager);
+
       void drawMainMenuBar(app::Application &app);
 
       void drawHierarchyPanel(app::Application &app);
@@ -62,5 +64,6 @@ namespace ui {
       bool _showEntities = true;
       bool _showTransform = true;
       bool _showMaterials = true;
+      bool _showScripts = true;
   };
 }  // namespace ui

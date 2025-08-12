@@ -102,6 +102,7 @@ add_library(EngineCore
     Core/Ecs/systems/RenderSystem.cpp
     Core/Ecs/systems/SelectionSystem.cpp
     Core/Ecs/systems/GizmoSystem.cpp
+    Core/Ecs/systems/ScriptSystem.cpp
 )
 
 target_include_directories(EngineCore

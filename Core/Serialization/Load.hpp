@@ -45,6 +45,9 @@ namespace jsonfile {
       void loadModelComponent(const nlohmann::json& entityData, Entity entity,
                               ecs::ECSManager* ecsManager);
 
+      void loadScriptComponent(const nlohmann::json& entityData, Entity entity,
+                               ecs::ECSManager* ecsManager);
+
       void loadDefaultComponents(Entity entity, ecs::ECSManager* ecsManager);
 
       void createCubeTransform(Entity entity, const raylib::Vector3& position,

@@ -4,10 +4,16 @@
 #include "ModelComponent.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
+#include "ScriptComponent.hpp"
 #include "SelectionComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
 #include "Vector2.hpp"
+
+void shape3D::Shape::assignDefaultComponents(Entity entity,
+                                             ecs::ECSManager* ecsManager) {
+  ecsManager->addComponent(entity, ecs::ScriptComponent{});
+}
 
 Entity shape3D::Shape::createCubeEntity(const raylib::Vector3& position,
                                         const raylib::Vector3& size,
@@ -26,7 +32,7 @@ Entity shape3D::Shape::createCubeEntity(const raylib::Vector3& position,
   ecsManager->addComponent(entity, ecs::NameComponent{name, "Cube"});
   ecsManager->addComponent(entity, ecs::SelectionComponent{false});
   ecsManager->addComponent(entity, ecs::GizmoComponent{});
-
+  assignDefaultComponents(entity, ecsManager);
   return entity;
 }
 
@@ -47,6 +53,7 @@ Entity shape3D::Shape::createSphereEntity(const raylib::Vector3& position,
   ecsManager->addComponent(entity, ecs::NameComponent{name, "Sphere"});
   ecsManager->addComponent(entity, ecs::SelectionComponent{false});
   ecsManager->addComponent(entity, ecs::GizmoComponent{});
+  assignDefaultComponents(entity, ecsManager);
 
   return entity;
 }
@@ -70,6 +77,7 @@ Entity shape3D::Shape::createCylinderEntity(const raylib::Vector3& position,
   ecsManager->addComponent(entity, ecs::NameComponent{name, "Cylinder"});
   ecsManager->addComponent(entity, ecs::SelectionComponent{false});
   ecsManager->addComponent(entity, ecs::GizmoComponent{});
+  assignDefaultComponents(entity, ecsManager);
 
   return entity;
 }
@@ -89,6 +97,7 @@ Entity shape3D::Shape::createPlaneEntity(const raylib::Vector3& position,
   ecsManager->addComponent(entity, ecs::NameComponent{name, "Plane"});
   ecsManager->addComponent(entity, ecs::SelectionComponent{false});
   ecsManager->addComponent(entity, ecs::GizmoComponent{});
+  assignDefaultComponents(entity, ecsManager);
 
   return entity;
 }
@@ -117,6 +126,7 @@ Entity shape3D::Shape::createModelEntity(const raylib::Vector3& position,
   modelComponent.isLoaded = false;
 
   ecsManager->addComponent(entity, std::move(modelComponent));
+  assignDefaultComponents(entity, ecsManager);
 
   return entity;
 }

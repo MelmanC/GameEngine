@@ -15,13 +15,17 @@
         },
         "visible": true
       },
+      "script": {
+        "enabled": true,
+        "scriptPath": "./scripts/cube.lua"
+      },
       "shape": {
         "type": "Cube"
       },
       "transform": {
         "position": {
           "x": 5.58632755279541,
-          "y": 0.5,
+          "y": 0.4599217176437378,
           "z": -0.08492092788219452
         },
         "rotation": {
@@ -51,13 +55,17 @@
         },
         "visible": true
       },
+      "script": {
+        "enabled": false,
+        "scriptPath": ""
+      },
       "shape": {
         "type": "Sphere"
       },
       "transform": {
         "position": {
           "x": -7.020859241485596,
-          "y": 1.0246872901916504,
+          "y": 0.9711709022521973,
           "z": 0.053046755492687225
         },
         "radius": 1.0,
@@ -83,14 +91,18 @@
         },
         "visible": true
       },
+      "script": {
+        "enabled": false,
+        "scriptPath": ""
+      },
       "shape": {
         "type": "Plane"
       },
       "transform": {
         "position": {
-          "x": -0.46437564492225647,
-          "y": 0.028749998658895493,
-          "z": -9.106328010559082
+          "x": 0.0,
+          "y": 0.0,
+          "z": -7.016483306884766
         },
         "rotation": {
           "x": 0.0,
@@ -118,6 +130,10 @@
         },
         "visible": true
       },
+      "script": {
+        "enabled": false,
+        "scriptPath": ""
+      },
       "shape": {
         "type": "Cylinder"
       },
@@ -125,7 +141,7 @@
         "height": 2.0,
         "position": {
           "x": -1.8320313692092896,
-          "y": 0.019609475508332253,
+          "y": 0.01515625324100256,
           "z": 5.497499942779541
         },
         "radius": 1.0,

@@ -10,6 +10,8 @@ namespace shape3D {
       Shape() = default;
       ~Shape() = default;
 
+      void assignDefaultComponents(Entity entity, ecs::ECSManager* ecsManager);
+
       Entity createCubeEntity(const raylib::Vector3& position,
                               const raylib::Vector3& size,
                               const raylib::Color& color,

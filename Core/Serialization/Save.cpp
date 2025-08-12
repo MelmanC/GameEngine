@@ -8,6 +8,7 @@
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "Scene.hpp"
+#include "ScriptComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
 #include "TransformHelper.hpp"
@@ -49,6 +50,7 @@ void jsonfile::Save::saveEntityToJson(const Entity& entity,
   saveRenderComponent(entity, entityData, ecsManager);
   saveShapeComponent(entity, entityData, ecsManager);
   saveNameComponent(entity, entityData, ecsManager);
+  saveScriptComponent(entity, entityData, ecsManager);
   auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
   if (shape.type == ecs::ShapeType::MODEL) {
     auto& model = ecsManager->getComponent<ecs::ModelComponent>(entity);
@@ -169,4 +171,20 @@ nlohmann::json jsonfile::Save::saveModelComponent(
   modelData["modelPath"] = model.modelPath;
 
   return modelData;
+}
+
+void jsonfile::Save::saveScriptComponent(const Entity& entity,
+                                         nlohmann::json& jsonData,
+                                         ecs::ECSManager* ecsManager) const {
+  if (!ecsManager) {
+    throw std::runtime_error("ECSManager is null");
+  }
+
+  if (!ecsManager->hasComponent<ecs::ScriptComponent>(entity)) {
+    jsonData["script"] = {{"scriptPath", ""}, {"enabled", false}};
+    return;
+  }
+  auto& script = ecsManager->getComponent<ecs::ScriptComponent>(entity);
+  jsonData["script"] = {{"scriptPath", script.scriptPath},
+                        {"enabled", script.enabled}};
 }

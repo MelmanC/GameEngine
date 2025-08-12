@@ -9,6 +9,7 @@
 #include "ModelComponent.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
+#include "ScriptComponent.hpp"
 #include "SelectionComponent.hpp"
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
@@ -64,6 +65,7 @@ void app::Application::initECS() {
   _ecsManager->registerComponent<ecs::NameComponent>();
   _ecsManager->registerComponent<ecs::SelectionComponent>();
   _ecsManager->registerComponent<ecs::GizmoComponent>();
+  _ecsManager->registerComponent<ecs::ScriptComponent>();
 
   _renderSystem = _ecsManager->registerSystem<ecs::RenderSystem>();
   _selectionSystem = _ecsManager->registerSystem<ecs::SelectionSystem>();

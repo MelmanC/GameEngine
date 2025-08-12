@@ -25,6 +25,16 @@ namespace ecs {
         _signatures.insert({ti, signature});
       }
 
+      template <typename T>
+      std::shared_ptr<T> getSystem() {
+        std::type_index ti(typeid(T));
+        auto it = _systems.find(ti);
+        if (it != _systems.end()) {
+          return std::static_pointer_cast<T>(it->second);
+        }
+        return nullptr;
+      }
+
       void entityDestroyed(Entity entity) {
         for (auto &pair : _systems) {
           pair.second->_entities.erase(entity);

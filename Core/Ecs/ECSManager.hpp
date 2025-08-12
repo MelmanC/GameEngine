@@ -58,12 +58,18 @@ namespace ecs {
 
         auto signature = _entityManager->getSignature(entity);
         signature.set(_componentManager->getComponentType<T>(), false);
+        _entityManager->setSignature(entity, signature);
         _systemManager->entitySignatureChanged(entity, signature);
       }
 
       template <typename T>
       T &getComponent(Entity entity) {
         return _componentManager->getComponent<T>(entity);
+      }
+
+      template <typename T>
+      std::shared_ptr<T> getSystem() {
+        return _systemManager->getSystem<T>();
       }
 
       template <typename T>
