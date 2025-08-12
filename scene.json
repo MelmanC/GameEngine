@@ -17,7 +17,7 @@
       },
       "script": {
         "enabled": true,
-        "scriptPath": "./scripts/cube.lua"
+        "scriptPath": "./scripts/move.lua"
       },
       "shape": {
         "type": "Cube"

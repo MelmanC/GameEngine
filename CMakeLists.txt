@@ -11,15 +11,16 @@ execute_process(
 add_compile_options(-W -Wall -Wextra -std=c++20)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/Core
     ${CMAKE_SOURCE_DIR}/Editor
     ${CMAKE_SOURCE_DIR}/Editor/3D
     ${CMAKE_SOURCE_DIR}/Editor/Camera
     ${CMAKE_SOURCE_DIR}/Editor/Gui
+    ${CMAKE_SOURCE_DIR}/Core
     ${CMAKE_SOURCE_DIR}/Core/Serialization
     ${CMAKE_SOURCE_DIR}/Core/Ecs
     ${CMAKE_SOURCE_DIR}/Core/Ecs/systems
     ${CMAKE_SOURCE_DIR}/Core/Ecs/components
+    ${CMAKE_SOURCE_DIR}/Core/API
     ${CMAKE_SOURCE_DIR}/Assets
     ${CMAKE_SOURCE_DIR}/Runtime
 )
@@ -103,6 +104,10 @@ add_library(EngineCore
     Core/Ecs/systems/SelectionSystem.cpp
     Core/Ecs/systems/GizmoSystem.cpp
     Core/Ecs/systems/ScriptSystem.cpp
+    Core/API/EntityAPI.cpp
+    Core/API/TransformAPI.cpp
+    Core/API/RenderAPI.cpp
+    Core/API/InputAPI.cpp
 )
 
 target_include_directories(EngineCore

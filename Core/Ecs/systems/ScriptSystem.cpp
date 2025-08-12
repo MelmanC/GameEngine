@@ -1,18 +1,13 @@
 #include "ScriptSystem.hpp"
+#include <raylib.h>
 #include <filesystem>
-#include "Color.hpp"
+#include "EntityAPI.hpp"
 #include "EntityManager.hpp"
-#include "NameComponent.hpp"
-#include "RenderComponent.hpp"
 #include "ScriptComponent.hpp"
-#include "TransformHelper.hpp"
-#include "Vector3.hpp"
 
 ecs::ScriptSystem::ScriptSystem() {
   _lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::table,
                       sol::lib::string, sol::lib::io, sol::lib::os);
-
-  initalizeLuaBindings();
 }
 
 void ecs::ScriptSystem::update(float deltaTime) {
@@ -122,67 +117,20 @@ void ecs::ScriptSystem::initalizeLuaBindings() {
 }
 
 void ecs::ScriptSystem::registerEntityAPI() {
-  _lua["Entity"] = _lua.create_table();
+  _entityAPI = std::make_unique<api::EntityAPI>(_ecsManager);
 
-  _lua["Entity"]["getName"] = [this](Entity entity) -> std::string {
-    if (_ecsManager && _ecsManager->hasComponent<NameComponent>(entity)) {
-      return _ecsManager->getComponent<NameComponent>(entity).name;
-    }
-    return "";
-  };
-
-  _lua["Entity"]["setName"] = [this](Entity entity, const std::string& name) {
-    if (_ecsManager && _ecsManager->hasComponent<NameComponent>(entity)) {
-      _ecsManager->getComponent<NameComponent>(entity).name = name;
-    }
-  };
+  _entityAPI->registerEntityTable(_lua);
 }
 
 void ecs::ScriptSystem::registerComponentAPI() {
-  _lua["Transform"] = _lua.create_table();
+  _transformAPI = std::make_unique<api::TransformAPI>(_ecsManager);
+  _transformAPI->registerTransformTable(_lua);
 
-  _lua["Transform"]["getPosition"] = [this](Entity entity) -> sol::table {
-    if (!_ecsManager)
-      return sol::nil;
+  _renderAPI = std::make_unique<api::RenderAPI>(_ecsManager);
+  _renderAPI->registerRenderTable(_lua);
 
-    raylib::Vector3 pos =
-        ecs::TransformHelper::getPosition(entity, _ecsManager);
-    sol::table result = _lua.create_table();
-    result["x"] = pos.x;
-    result["y"] = pos.y;
-    result["z"] = pos.z;
-    return result;
-  };
-
-  _lua["Transform"]["setPosition"] = [this](Entity entity, float x, float y,
-                                            float z) {
-    if (_ecsManager) {
-      TransformHelper::setPosition(entity, {x, y, z}, _ecsManager);
-    }
-  };
-
-  _lua["Transform"]["move"] = [this](Entity entity, float x, float y, float z) {
-    if (_ecsManager) {
-      TransformHelper::movePosition(entity, {x, y, z}, _ecsManager);
-    }
-  };
-
-  _lua["Render"] = _lua.create_table();
-
-  _lua["Render"]["setColor"] = [this](Entity entity, int r, int g, int b,
-                                      int a) {
-    if (_ecsManager && _ecsManager->hasComponent<RenderComponent>(entity)) {
-      auto& render = _ecsManager->getComponent<RenderComponent>(entity);
-      render.color = raylib::Color(r, g, b, a);
-    }
-  };
-
-  _lua["Render"]["setVisible"] = [this](Entity entity, bool visible) {
-    if (_ecsManager && _ecsManager->hasComponent<RenderComponent>(entity)) {
-      auto& render = _ecsManager->getComponent<RenderComponent>(entity);
-      render.visible = visible;
-    }
-  };
+  _inputAPI = std::make_unique<api::InputAPI>(_ecsManager);
+  _inputAPI->registerInputTable(_lua);
 }
 
 bool ecs::ScriptSystem::loadScriptFile(const std::string& scriptPath,

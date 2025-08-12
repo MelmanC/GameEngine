@@ -20,6 +20,7 @@ runtime::PlayerApplication::PlayerApplication(int width, int height,
   _scene.initialize(nullptr, _ecsManager.get());
   loadScene("./scene.json");
 }
+
 void runtime::PlayerApplication::initCamera() {
   _camera.position = raylib::Vector3(0, 1, 10);
   _camera.target = raylib::Vector3(0, 0, 0);
