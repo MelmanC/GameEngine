@@ -120,6 +120,10 @@ add_executable(EditorApp
     Editor/main.cpp
     Editor/Window.cpp
     Editor/Gui/Gui.cpp
+    Editor/Gui/MainMenuBar.cpp
+    Editor/Gui/MainHierarchyPanel.cpp
+    Editor/Gui/MainPropertiesPanel.cpp
+    Editor/Gui/FinderPanel.cpp
     Editor/InputManager.cpp
     Editor/Renderer.cpp
     Editor/ViewportManager.cpp
