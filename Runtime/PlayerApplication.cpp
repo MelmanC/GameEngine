@@ -23,7 +23,7 @@ runtime::PlayerApplication::PlayerApplication(int width, int height,
 
 void runtime::PlayerApplication::initCamera() {
   _camera.position = raylib::Vector3(0, 1, 10);
-  _camera.target = raylib::Vector3(0, 0, 0);
+  _camera.target = raylib::Vector3(0, 0, 1);
   _camera.up = raylib::Vector3(0, 1, 0);
   _camera.fovy = 45.0f;
   _camera.projection = CAMERA_PERSPECTIVE;
