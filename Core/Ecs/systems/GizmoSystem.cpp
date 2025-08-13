@@ -28,7 +28,7 @@ void ecs::GizmoSystem::drawGizmos() {
       switch (gizmo.mode) {
         case GizmoMode::TRANSLATE:
           drawTranslationGizmo(position, gizmo.selectedAxis, gizmo.size,
-                               gizmo.cubeSize, gizmo.lineThickness);
+                               gizmo.coneSize, gizmo.lineThickness);
           break;
         case GizmoMode::ROTATE:
           break;
@@ -39,11 +39,22 @@ void ecs::GizmoSystem::drawGizmos() {
   }
 }
 
+void ecs::GizmoSystem::DrawCone(const raylib::Vector3& position,
+                                const raylib::Vector3& direction, float radius,
+                                float height,
+                                const raylib::Color& color) const {
+  raylib::Vector3 dirNorm = Vector3Normalize(direction);
+  raylib::Vector3 tip = Vector3Add(position, Vector3Scale(dirNorm, height));
+
+  DrawCylinderEx(position, tip, radius, 0.0f, 16, color);
+}
+
 void ecs::GizmoSystem::drawTranslationGizmo(const raylib::Vector3& position,
                                             GizmoAxis selectedAxis, float size,
                                             float cubeSize,
                                             float lineThickness) const {
   float axisLength = size;
+  float coneHeight = axisLength * 0.5f;
 
   raylib::Color xColor = (selectedAxis == GizmoAxis::X_AXIS)
                              ? raylib::Color::Yellow()
@@ -58,49 +69,79 @@ void ecs::GizmoSystem::drawTranslationGizmo(const raylib::Vector3& position,
   raylib::Vector3 xEnd = Vector3Add(position, {axisLength, 0, 0});
   DrawCube(Vector3Add(position, {axisLength / 2, 0, 0}), axisLength,
            lineThickness, lineThickness, xColor);
-  DrawCube(xEnd, cubeSize, cubeSize, cubeSize, xColor);
+  DrawCone(xEnd, {1, 0, 0}, cubeSize, coneHeight, xColor);
 
   raylib::Vector3 yEnd = Vector3Add(position, {0, axisLength, 0});
   DrawCube(Vector3Add(position, {0, axisLength / 2, 0}), lineThickness,
            axisLength, lineThickness, yColor);
-  DrawCube(yEnd, cubeSize, cubeSize, cubeSize, yColor);
+  DrawCone(yEnd, {0, 1, 0}, cubeSize, coneHeight, yColor);
 
   raylib::Vector3 zEnd = Vector3Add(position, {0, 0, axisLength});
   DrawCube(Vector3Add(position, {0, 0, axisLength / 2}), lineThickness,
            lineThickness, axisLength, zColor);
-  DrawCube(zEnd, cubeSize, cubeSize, cubeSize, zColor);
+  DrawCone(zEnd, {0, 0, 1}, cubeSize, coneHeight, zColor);
 }
 
 ecs::GizmoAxis ecs::GizmoSystem::getHoveredAxis(const raylib::Vector3& position,
                                                 const raylib::Camera3D& camera,
                                                 const raylib::Vector2& mousePos,
-                                                float size,
-                                                float cubeSize) const {
+                                                float size, float coneSize,
+                                                float lineThickness) const {
   float axisLength = size;
   Ray mouseRay = GetMouseRay(mousePos, camera);
 
-  raylib::Vector3 xCubePos = Vector3Add(position, {axisLength, 0, 0});
-  BoundingBox xBox = {
-      Vector3Subtract(xCubePos, {cubeSize / 2, cubeSize / 2, cubeSize / 2}),
-      Vector3Add(xCubePos, {cubeSize / 2, cubeSize / 2, cubeSize / 2})};
-  if (GetRayCollisionBox(mouseRay, xBox).hit) {
-    return GizmoAxis::X_AXIS;
+  {
+    raylib::Vector3 xEnd = Vector3Add(position, {axisLength, 0, 0});
+
+    if (GetRayCollisionSphere(mouseRay, xEnd, coneSize).hit) {
+      return GizmoAxis::X_AXIS;
+    }
+
+    raylib::Vector3 xline = Vector3Add(position, {axisLength / 2, 0, 0});
+    BoundingBox xAxisBox = {
+        Vector3Subtract(xline,
+                        {axisLength / 2, lineThickness / 2, lineThickness / 2}),
+        Vector3Add(xline,
+                   {axisLength / 2, lineThickness / 2, lineThickness / 2})};
+    if (GetRayCollisionBox(mouseRay, xAxisBox).hit) {
+      return GizmoAxis::X_AXIS;
+    }
   }
 
-  raylib::Vector3 yCubePos = Vector3Add(position, {0, axisLength, 0});
-  BoundingBox yBox = {
-      Vector3Subtract(yCubePos, {cubeSize / 2, cubeSize / 2, cubeSize / 2}),
-      Vector3Add(yCubePos, {cubeSize / 2, cubeSize / 2, cubeSize / 2})};
-  if (GetRayCollisionBox(mouseRay, yBox).hit) {
-    return GizmoAxis::Y_AXIS;
+  {
+    raylib::Vector3 yEnd = Vector3Add(position, {0, axisLength, 0});
+
+    if (GetRayCollisionSphere(mouseRay, yEnd, coneSize).hit) {
+      return GizmoAxis::Y_AXIS;
+    }
+
+    raylib::Vector3 yLine = Vector3Add(position, {0, axisLength / 2, 0});
+    BoundingBox yAxisBox = {
+        Vector3Subtract(yLine,
+                        {lineThickness / 2, axisLength / 2, lineThickness / 2}),
+        Vector3Add(yLine,
+                   {lineThickness / 2, axisLength / 2, lineThickness / 2})};
+    if (GetRayCollisionBox(mouseRay, yAxisBox).hit) {
+      return GizmoAxis::Y_AXIS;
+    }
   }
 
-  raylib::Vector3 zCubePos = Vector3Add(position, {0, 0, axisLength});
-  BoundingBox zBox = {
-      Vector3Subtract(zCubePos, {cubeSize / 2, cubeSize / 2, cubeSize / 2}),
-      Vector3Add(zCubePos, {cubeSize / 2, cubeSize / 2, cubeSize / 2})};
-  if (GetRayCollisionBox(mouseRay, zBox).hit) {
-    return GizmoAxis::Z_AXIS;
+  {
+    raylib::Vector3 zEnd = Vector3Add(position, {0, 0, axisLength});
+
+    if (GetRayCollisionSphere(mouseRay, zEnd, coneSize).hit) {
+      return GizmoAxis::Z_AXIS;
+    }
+
+    raylib::Vector3 zLine = Vector3Add(position, {0, 0, axisLength / 2});
+    BoundingBox zAxisBox = {
+        Vector3Subtract(zLine,
+                        {lineThickness / 2, lineThickness / 2, axisLength / 2}),
+        Vector3Add(zLine,
+                   {lineThickness / 2, lineThickness / 2, axisLength / 2})};
+    if (GetRayCollisionBox(mouseRay, zAxisBox).hit) {
+      return GizmoAxis::Z_AXIS;
+    }
   }
 
   return GizmoAxis::NONE;
@@ -118,7 +159,8 @@ void ecs::GizmoSystem::updateGizmo(Entity selectedEntity,
 
   if (!gizmo.isDragging) {
     GizmoAxis hoveredAxis =
-        getHoveredAxis(position, camera, mousePos, gizmo.size, gizmo.cubeSize);
+        getHoveredAxis(position, camera, mousePos, gizmo.size, gizmo.coneSize,
+                       gizmo.lineThickness);
     gizmo.selectedAxis = hoveredAxis;
   }
 }

@@ -31,7 +31,7 @@ namespace ecs {
 
       float size = 1.5f;
 
-      float cubeSize = 0.2f;
+      float coneSize = 0.1f;
 
       float lineThickness = 0.05f;
   };

@@ -30,12 +30,16 @@ namespace ecs {
       GizmoAxis getHoveredAxis(const raylib::Vector3& position,
                                const raylib::Camera3D& camera,
                                const raylib::Vector2& mousePos, float size,
-                               float cubeSize) const;
+                               float coneSize, float lineThickness) const;
 
     private:
       void drawTranslationGizmo(const raylib::Vector3& position,
                                 GizmoAxis selectedAxis, float size,
                                 float cubeSize, float lineThickness) const;
+
+      void DrawCone(const raylib::Vector3& position,
+                    const raylib::Vector3& direction, float radius,
+                    float height, const raylib::Color& color) const;
 
       ECSManager* _ecsManager = nullptr;
   };

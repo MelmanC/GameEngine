@@ -85,7 +85,7 @@ void input::InputManager::handleMouseInput() {
 
       ecs::GizmoAxis hoveredAxis = _app.getGizmoSystem().getHoveredAxis(
           transform, _app.getCamera().getCamera(), mousePos, gizmo.size,
-          gizmo.cubeSize);
+          gizmo.coneSize, gizmo.lineThickness);
 
       if (hoveredAxis != ecs::GizmoAxis::NONE || gizmo.isDragging) {
         gizmoInteraction = true;
