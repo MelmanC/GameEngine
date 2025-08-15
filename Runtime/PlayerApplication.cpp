@@ -1,5 +1,6 @@
 #include "PlayerApplication.hpp"
 #include <raylib.h>
+#include "CameraComponent.hpp"
 #include "ECSManager.hpp"
 #include "GizmoComponent.hpp"
 #include "NameComponent.hpp"
@@ -11,39 +12,43 @@
 
 runtime::PlayerApplication::PlayerApplication(int width, int height,
                                               const std::string& name)
-    : _PAwidth(width), _PAheight(height), _PAname(name), _camera() {
+    : _PAwidth(width), _PAheight(height), _PAname(name) {
   _PAwindow.Init(_PAwidth, _PAheight, _PAname.c_str());
   _PAwindow.SetTargetFPS(60);
 
-  initCamera();
   initECS();
   _scene.initialize(nullptr, _ecsManager.get());
   loadScene("./scene.json");
-}
 
-void runtime::PlayerApplication::initCamera() {
-  _camera.position = raylib::Vector3(0, 1, 10);
-  _camera.target = raylib::Vector3(0, 0, 1);
-  _camera.up = raylib::Vector3(0, 1, 0);
-  _camera.fovy = 45.0f;
-  _camera.projection = CAMERA_PERSPECTIVE;
-  DisableCursor();
+  // Test Camera Component
+  ecs::CameraComponent cameraComponent;
+  cameraComponent.position = raylib::Vector3(0.0f, 5.0f, 10.0f);
+  cameraComponent.target = raylib::Vector3(0.0f, 0.0f, 0.0f);
+  cameraComponent.up = raylib::Vector3(0.0f, 1.0f, 0.0f);
+  cameraComponent.fov = 45.0f;
+  cameraComponent.projection = CAMERA_PERSPECTIVE;
+  cameraComponent.mode = CAMERA_FIRST_PERSON;
+  cameraComponent.isActive = true;
+  auto cameraEntity = _ecsManager->createEntity();
+  _ecsManager->addComponent<ecs::CameraComponent>(cameraEntity,
+                                                  cameraComponent);
+  _cameraSystem->setActiveCamera(cameraEntity);
 }
 
 void runtime::PlayerApplication::run() {
   while (_PAisRunning && !_PAwindow.ShouldClose()) {
-    _camera.Update(CAMERA_FIRST_PERSON);
-
     _scriptSystem->update(_PAwindow.GetFrameTime());
+    _cameraSystem->update(_PAwindow.GetFrameTime());
 
     _PAwindow.BeginDrawing();
     _PAwindow.ClearBackground(RAYWHITE);
 
-    _camera.BeginMode();
-
-    _renderSystem->render();
-
-    _camera.EndMode();
+    if (_cameraSystem->hasActiveCamera()) {
+      const auto& activeCamera = _cameraSystem->getActiveCamera();
+      BeginMode3D(activeCamera);
+      _renderSystem->render();
+      EndMode3D();
+    }
 
     _PAwindow.EndDrawing();
   }
@@ -64,12 +69,15 @@ void runtime::PlayerApplication::initECS() {
   _ecsManager->registerComponent<ecs::SelectionComponent>();
   _ecsManager->registerComponent<ecs::GizmoComponent>();
   _ecsManager->registerComponent<ecs::ScriptComponent>();
+  _ecsManager->registerComponent<ecs::CameraComponent>();
 
   _renderSystem = _ecsManager->registerSystem<ecs::RenderSystem>();
   _scriptSystem = _ecsManager->registerSystem<ecs::ScriptSystem>();
+  _cameraSystem = _ecsManager->registerSystem<ecs::CameraSystem>();
 
   _renderSystem->setECSManager(_ecsManager.get());
   _scriptSystem->setECSManager(_ecsManager.get());
+  _cameraSystem->setECSManager(_ecsManager.get());
 
   Signature renderSignature;
   renderSignature.set(_ecsManager->getComponentType<ecs::RenderComponent>());
@@ -79,6 +87,10 @@ void runtime::PlayerApplication::initECS() {
   Signature scriptSignature;
   scriptSignature.set(_ecsManager->getComponentType<ecs::ScriptComponent>());
   _ecsManager->setSystemeSignature<ecs::ScriptSystem>(scriptSignature);
+
+  Signature cameraSignature;
+  cameraSignature.set(_ecsManager->getComponentType<ecs::CameraComponent>());
+  _ecsManager->setSystemeSignature<ecs::CameraSystem>(cameraSignature);
 }
 
 void runtime::PlayerApplication::loadScene(const std::string& scenePath) {

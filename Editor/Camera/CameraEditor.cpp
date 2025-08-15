@@ -1,6 +1,6 @@
-#include "Camera3D.hpp"
+#include "CameraEditor.hpp"
 
-camera::Camera3D::Camera3D() {
+camera::CameraEditor::CameraEditor() {
   _camera = raylib::Camera();
   _camera.SetPosition(raylib::Vector3(0.0f, 10.0f, 10.0f));
   _camera.SetTarget(raylib::Vector3(0.0f, 0.0f, 0.0f));
@@ -9,13 +9,13 @@ camera::Camera3D::Camera3D() {
   _camera.SetProjection(CAMERA_PERSPECTIVE);
 }
 
-void camera::Camera3D::update(bool isViewportActive) {
+void camera::CameraEditor::update(bool isViewportActive) {
   if (isViewportActive) {
     handleMouseLook();
   }
 }
 
-void camera::Camera3D::handleMouseLook() {
+void camera::CameraEditor::handleMouseLook() {
   if (IsCursorHidden()) {
     float mouseSensitivity = 0.003f;
     raylib::Vector2 mouseMovement = GetMouseDelta();
@@ -36,8 +36,8 @@ void camera::Camera3D::handleMouseLook() {
   }
 }
 
-void camera::Camera3D::handleMovementInput(int forwardKey, int backwardKey,
-                                           int leftKey, int rightKey) {
+void camera::CameraEditor::handleMovementInput(int forwardKey, int backwardKey,
+                                               int leftKey, int rightKey) {
   if (!IsCursorHidden())
     return;
 

@@ -28,7 +28,8 @@ void ui::Gui::guiAlign(const char *label) {
   ImGui::SetNextItemWidth(-1);
 }
 
-void ui::Gui::drawInterface(camera::Camera3D &camera, app::Application &app) {
+void ui::Gui::drawInterface(camera::CameraEditor &camera,
+                            app::Application &app) {
   _mainMenuBar.draw(app, *this);
   _mainHierarchyPanel.draw(app, *this);
   _mainPropertiesPanel.draw(camera, app, *this);

@@ -2,7 +2,7 @@
 
 #include <raylib.h>
 #include <raylib-cpp.hpp>
-#include "Camera3D.hpp"
+#include "CameraEditor.hpp"
 #include "ECSManager.hpp"
 #include "GizmoSystem.hpp"
 #include "Scene.hpp"
@@ -18,7 +18,7 @@ namespace viewport {
       void update(const raylib::Vector2& mousePos, bool isMousePressed,
                   bool isMouseDown);
 
-      void updateCameraControls(camera::Camera3D& camera);
+      void updateCameraControls(camera::CameraEditor& camera);
 
       bool isMouseInViewport(const raylib::Vector2& mousePos) const;
 
@@ -40,7 +40,7 @@ namespace viewport {
                                   ecs::GizmoSystem* gizmoSystem,
                                   ecs::SelectionSystem* selectionSystem);
 
-      void updateGizmo(camera::Camera3D& camera,
+      void updateGizmo(camera::CameraEditor& camera,
                        const raylib::Vector2& mousePos,
                        ecs::ECSManager* ecsManager,
                        ecs::GizmoSystem* gizmoSystem,

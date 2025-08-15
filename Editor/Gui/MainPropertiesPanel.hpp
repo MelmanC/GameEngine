@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Camera3D.hpp"
+#include "CameraEditor.hpp"
 #include "ECSManager.hpp"
 #include "EntityManager.hpp"
 
@@ -17,7 +17,8 @@ namespace ui {
 
       ~MainPropertiesPanel() = default;
 
-      void draw(camera::Camera3D &camera, app::Application &app, ui::Gui &gui);
+      void draw(camera::CameraEditor &camera, app::Application &app,
+                ui::Gui &gui);
 
       void drawEntityInfo(Entity entity, ecs::ECSManager *ecsManager,
                           ui::Gui &gui);
@@ -31,6 +32,6 @@ namespace ui {
       void drawScriptInfo(Entity entity, ecs::ECSManager *ecsManager,
                           ui::Gui &gui);
 
-      void drawCameraInfo(camera::Camera3D &camera, app::Application &app);
+      void drawCameraInfo(camera::CameraEditor &camera, app::Application &app);
   };
 }  // namespace ui

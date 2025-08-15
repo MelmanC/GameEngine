@@ -4,7 +4,7 @@
 #include <raylib.h>
 #include <rlImGui.h>
 #include <raylib-cpp.hpp>
-#include "Camera3D.hpp"
+#include "CameraEditor.hpp"
 #include "FinderPanel.hpp"
 #include "MainHierarchyPanel.hpp"
 #include "MainMenuBar.hpp"
@@ -22,7 +22,7 @@ namespace ui {
 
       ~Gui();
 
-      void drawInterface(camera::Camera3D &camera, app::Application &app);
+      void drawInterface(camera::CameraEditor &camera, app::Application &app);
 
       void guiAlign(const char *label);
 

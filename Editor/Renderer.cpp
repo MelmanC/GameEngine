@@ -19,7 +19,7 @@ void render::Renderer::drawBackground(const raylib::Color& color) {
 }
 
 void render::Renderer::drawViewport(const raylib::Rectangle& viewport,
-                                    camera::Camera3D& camera,
+                                    camera::CameraEditor& camera,
                                     ecs::RenderSystem* renderSystem,
                                     ecs::GizmoSystem* gizmoSystem) {
   DrawRectangleRec(viewport, _viewportColor);
@@ -62,7 +62,7 @@ void render::Renderer::endViewportScissor() {
 }
 
 void render::Renderer::drawGrid() {
-  DrawGrid(20, 1.0f);
+  DrawGrid(20, 2.0f);
 }
 
 void render::Renderer::setViewportSize(int width, int height) {

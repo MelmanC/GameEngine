@@ -2,7 +2,7 @@
 
 #include <memory>
 #include <raylib-cpp.hpp>
-#include "Camera3D.hpp"
+#include "CameraEditor.hpp"
 #include "ECSManager.hpp"
 #include "GizmoSystem.hpp"
 #include "Gui.hpp"
@@ -31,7 +31,7 @@ namespace app {
         return _viewportManager;
       }
 
-      camera::Camera3D& getCamera() {
+      camera::CameraEditor& getCamera() {
         return _camera;
       }
 
@@ -82,7 +82,7 @@ namespace app {
       bool _isRunning;
 
       scene::Scene _scene;
-      camera::Camera3D _camera;
+      camera::CameraEditor _camera;
 
       render::Renderer _renderer;
       viewport::ViewportManager _viewportManager;

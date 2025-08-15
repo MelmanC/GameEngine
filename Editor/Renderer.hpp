@@ -2,7 +2,7 @@
 
 #include <raylib.h>
 #include <raylib-cpp.hpp>
-#include "Camera3D.hpp"
+#include "CameraEditor.hpp"
 #include "GizmoSystem.hpp"
 #include "RenderSystem.hpp"
 
@@ -22,7 +22,7 @@ namespace render {
       void endFrame();
 
       void drawViewport(const raylib::Rectangle& viewport,
-                        camera::Camera3D& camera,
+                        camera::CameraEditor& camera,
                         ecs::RenderSystem* renderSystem,
                         ecs::GizmoSystem* gizmoSystem);
 

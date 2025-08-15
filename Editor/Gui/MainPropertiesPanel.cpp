@@ -6,7 +6,7 @@
 #include "ScriptComponent.hpp"
 #include "TransformHelper.hpp"
 
-void ui::MainPropertiesPanel::draw(camera::Camera3D &camera,
+void ui::MainPropertiesPanel::draw(camera::CameraEditor &camera,
                                    app::Application &app, ui::Gui &gui) {
   if (!gui._showProperties)
     return;
@@ -225,7 +225,7 @@ void ui::MainPropertiesPanel::drawScriptInfo(Entity entity,
   }
 }
 
-void ui::MainPropertiesPanel::drawCameraInfo(camera::Camera3D &camera,
+void ui::MainPropertiesPanel::drawCameraInfo(camera::CameraEditor &camera,
                                              app::Application &app) {
   ImGui::Text("Camera Info:");
   ImGui::Text("Position: %.2f, %.2f, %.2f", camera.getCamera().position.x,

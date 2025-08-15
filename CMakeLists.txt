@@ -104,6 +104,7 @@ add_library(EngineCore
     Core/Ecs/systems/SelectionSystem.cpp
     Core/Ecs/systems/GizmoSystem.cpp
     Core/Ecs/systems/ScriptSystem.cpp
+    Core/Ecs/systems/CameraSystem.cpp
     Core/API/EntityAPI.cpp
     Core/API/TransformAPI.cpp
     Core/API/RenderAPI.cpp
@@ -127,7 +128,7 @@ add_executable(EditorApp
     Editor/InputManager.cpp
     Editor/Renderer.cpp
     Editor/ViewportManager.cpp
-    Editor/Camera/Camera3D.cpp
+    Editor/Camera/CameraEditor.cpp
     Editor/Application.cpp
     Editor/3D/Shape.cpp
 )

@@ -3,7 +3,7 @@
 #include <atomic>
 #include <raylib-cpp.hpp>
 #include <string>
-#include "Camera3D.hpp"
+#include "CameraSystem.hpp"
 #include "RenderSystem.hpp"
 #include "Scene.hpp"
 #include "ScriptSystem.hpp"
@@ -40,12 +40,9 @@ namespace runtime {
       raylib::Window _PAwindow;
       scene::Scene _scene;
 
-      // TODO: Just for testing, remove later
-      raylib::Camera3D _camera;
-      void initCamera();
-
       std::unique_ptr<ecs::ECSManager> _ecsManager;
       std::shared_ptr<ecs::RenderSystem> _renderSystem;
       std::shared_ptr<ecs::ScriptSystem> _scriptSystem;
+      std::shared_ptr<ecs::CameraSystem> _cameraSystem;
   };
 }  // namespace runtime

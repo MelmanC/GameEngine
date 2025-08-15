@@ -47,7 +47,7 @@ void viewport::ViewportManager::handleGizmoInteraction(
 }
 
 void viewport::ViewportManager::updateGizmo(
-    camera::Camera3D& camera, const raylib::Vector2& mousePos,
+    camera::CameraEditor& camera, const raylib::Vector2& mousePos,
     ecs::ECSManager* ecsManager, ecs::GizmoSystem* gizmoSystem,
     ecs::SelectionSystem* selectionSystem) {
   if (isMouseInViewport(mousePos) && !_isActive && ecsManager && gizmoSystem &&
@@ -59,6 +59,7 @@ void viewport::ViewportManager::updateGizmo(
   }
 }
 
-void viewport::ViewportManager::updateCameraControls(camera::Camera3D& camera) {
+void viewport::ViewportManager::updateCameraControls(
+    camera::CameraEditor& camera) {
   camera.update(_isActive);
 }

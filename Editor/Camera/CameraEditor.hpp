@@ -5,10 +5,10 @@
 
 namespace camera {
 
-  class Camera3D {
+  class CameraEditor {
     public:
-      Camera3D();
-      ~Camera3D() = default;
+      CameraEditor();
+      ~CameraEditor() = default;
 
       void update(bool isViewportActive);
 
