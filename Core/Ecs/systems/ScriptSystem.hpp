@@ -2,6 +2,7 @@
 
 #include <sol/sol.hpp>
 #include <string>
+#include "CameraAPI.hpp"
 #include "ECSManager.hpp"
 #include "EntityAPI.hpp"
 #include "InputAPI.hpp"
@@ -52,5 +53,6 @@ namespace ecs {
       std::unique_ptr<api::TransformAPI> _transformAPI;
       std::unique_ptr<api::RenderAPI> _renderAPI;
       std::unique_ptr<api::InputAPI> _inputAPI;
+      std::unique_ptr<api::CameraAPI> _cameraAPI;
   };
 }  // namespace ecs

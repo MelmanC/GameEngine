@@ -151,6 +151,38 @@
           "z": 0.0
         }
       }
+    },
+    {
+      "camera": {
+        "fov": 45.0,
+        "isActive": true,
+        "mode": 3,
+        "position": {
+          "x": -0.22029685974121094,
+          "y": 6.472120761871338,
+          "z": -0.16352051496505737
+        },
+        "projection": 0,
+        "target": {
+          "x": 0.5246202945709229,
+          "y": 5.8050737380981445,
+          "z": -0.15140323340892792
+        },
+        "up": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      "id": 4,
+      "name": {
+        "name": "New Camera",
+        "type": "Camera"
+      },
+      "script": {
+        "enabled": true,
+        "scriptPath": "./scripts/camera.lua"
+      }
     }
   ]
 }

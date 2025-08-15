@@ -32,6 +32,10 @@ namespace ui {
       void drawScriptInfo(Entity entity, ecs::ECSManager *ecsManager,
                           ui::Gui &gui);
 
+      void drawCameraComponentInfo(Entity visualEntity, Entity cameraEntity,
+                                   ecs::ECSManager *ecsManager, ui::Gui &gui,
+                                   app::Application &app);
+
       void drawCameraInfo(camera::CameraEditor &camera, app::Application &app);
   };
 }  // namespace ui

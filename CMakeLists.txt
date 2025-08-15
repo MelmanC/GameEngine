@@ -105,10 +105,12 @@ add_library(EngineCore
     Core/Ecs/systems/GizmoSystem.cpp
     Core/Ecs/systems/ScriptSystem.cpp
     Core/Ecs/systems/CameraSystem.cpp
+    Core/Ecs/systems/CameraEditorSystem.cpp
     Core/API/EntityAPI.cpp
     Core/API/TransformAPI.cpp
     Core/API/RenderAPI.cpp
     Core/API/InputAPI.cpp
+    Core/API/CameraAPI.cpp
 )
 
 target_include_directories(EngineCore

@@ -3,6 +3,8 @@
 #include <memory>
 #include <raylib-cpp.hpp>
 #include "CameraEditor.hpp"
+#include "CameraEditorSystem.hpp"
+#include "CameraSystem.hpp"
 #include "ECSManager.hpp"
 #include "GizmoSystem.hpp"
 #include "Gui.hpp"
@@ -93,6 +95,8 @@ namespace app {
       std::shared_ptr<ecs::RenderSystem> _renderSystem;
       std::shared_ptr<ecs::SelectionSystem> _selectionSystem;
       std::shared_ptr<ecs::GizmoSystem> _gizmoSystem;
+      std::shared_ptr<ecs::CameraSystem> _cameraSystem;
+      std::shared_ptr<ecs::CameraEditorSystem> _cameraEditorSystem;
   };
 
 }  // namespace app

@@ -30,13 +30,12 @@ namespace jsonfile {
       ecs::ShapeType getShapeTypeFromJson(const nlohmann::json& entityData);
 
       void loadTransformComponent(const nlohmann::json& entityData,
-                                  Entity entity, ecs::ShapeType shapeType,
-                                  ecs::ECSManager* ecsManager);
+                                  Entity entity, ecs::ECSManager* ecsManager);
 
       void loadRenderComponent(const nlohmann::json& entityData, Entity entity,
                                ecs::ECSManager* ecsManager);
 
-      void loadShapeComponent(Entity entity, ecs::ShapeType shapeType,
+      void loadShapeComponent(const nlohmann::json& entityData, Entity entity,
                               ecs::ECSManager* ecsManager);
 
       void loadNameComponent(const nlohmann::json& entityData, Entity entity,
@@ -46,6 +45,9 @@ namespace jsonfile {
                               ecs::ECSManager* ecsManager);
 
       void loadScriptComponent(const nlohmann::json& entityData, Entity entity,
+                               ecs::ECSManager* ecsManager);
+
+      void loadCameraComponent(const nlohmann::json& entityData, Entity entity,
                                ecs::ECSManager* ecsManager);
 
       void loadDefaultComponents(Entity entity, ecs::ECSManager* ecsManager);

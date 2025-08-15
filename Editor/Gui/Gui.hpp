@@ -41,6 +41,7 @@ namespace ui {
       bool _showTransform = true;
       bool _showMaterials = true;
       bool _showScripts = true;
+      bool _showCamera = true;
 
     private:
       MainMenuBar _mainMenuBar;

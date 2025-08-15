@@ -3,6 +3,8 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 #include <raylib-cpp.hpp>
+#include "CameraComponent.hpp"
+#include "CameraSystem.hpp"
 #include "ECSManager.hpp"
 #include "GizmoComponent.hpp"
 #include "GizmoSystem.hpp"
@@ -42,19 +44,13 @@ void jsonfile::Load::loadEntityFromJson(const nlohmann::json& entityData,
                                         ecs::ECSManager* ecsManager) {
   Entity entity = ecsManager->createEntity();
 
-  ecs::ShapeType shapeType = getShapeTypeFromJson(entityData);
-
-  loadTransformComponent(entityData, entity, shapeType, ecsManager);
+  loadTransformComponent(entityData, entity, ecsManager);
   loadRenderComponent(entityData, entity, ecsManager);
-  loadShapeComponent(entity, shapeType, ecsManager);
+  loadShapeComponent(entityData, entity, ecsManager);
   loadNameComponent(entityData, entity, ecsManager);
   loadDefaultComponents(entity, ecsManager);
   loadScriptComponent(entityData, entity, ecsManager);
-
-  if (shapeType == ecs::ShapeType::MODEL) {
-    if (entityData.contains("model"))
-      loadModelComponent(entityData["model"], entity, ecsManager);
-  }
+  loadCameraComponent(entityData, entity, ecsManager);
 }
 
 ecs::ShapeType jsonfile::Load::getShapeTypeFromJson(
@@ -82,11 +78,11 @@ ecs::ShapeType jsonfile::Load::getShapeTypeFromJson(
 
 void jsonfile::Load::loadTransformComponent(const nlohmann::json& entityData,
                                             Entity entity,
-                                            ecs::ShapeType shapeType,
                                             ecs::ECSManager* ecsManager) {
   if (!entityData.contains("transform"))
-    throw std::runtime_error(
-        "Entity data does not contain 'transform' component");
+    return;
+
+  ecs::ShapeType shapeType = getShapeTypeFromJson(entityData);
 
   const auto& transformData = entityData["transform"];
   raylib::Vector3 position = getVector3FromJson(transformData, "position");
@@ -182,8 +178,9 @@ void jsonfile::Load::loadRenderComponent(const nlohmann::json& entityData,
                                          Entity entity,
                                          ecs::ECSManager* ecsManager) {
   if (!entityData.contains("render")) {
-    throw std::runtime_error("Entity data does not contain 'render' component");
+    return;
   }
+
   const auto& renderData = entityData["render"];
   ecs::RenderComponent render;
   render.color =
@@ -193,11 +190,23 @@ void jsonfile::Load::loadRenderComponent(const nlohmann::json& entityData,
   ecsManager->addComponent(entity, render);
 }
 
-void jsonfile::Load::loadShapeComponent(Entity entity, ecs::ShapeType shapeType,
+void jsonfile::Load::loadShapeComponent(const nlohmann::json& entityData,
+                                        Entity entity,
                                         ecs::ECSManager* ecsManager) {
+  if (!entityData.contains("shape")) {
+    return;
+  }
+
+  ecs::ShapeType shapeType = getShapeTypeFromJson(entityData);
+
   ecs::ShapeComponent shape;
   shape.type = shapeType;
   ecsManager->addComponent(entity, shape);
+
+  if (shapeType == ecs::ShapeType::MODEL) {
+    if (entityData.contains("model"))
+      loadModelComponent(entityData["model"], entity, ecsManager);
+  }
 }
 
 void jsonfile::Load::loadNameComponent(const nlohmann::json& entityData,
@@ -265,6 +274,30 @@ void jsonfile::Load::loadScriptComponent(const nlohmann::json& entityData,
     if (scriptSystem) {
       scriptSystem->loadScript(entity, script.scriptPath);
     }
+  }
+}
+
+void jsonfile::Load::loadCameraComponent(const nlohmann::json& cameraData,
+                                         Entity entity,
+                                         ecs::ECSManager* ecsManager) {
+  if (!cameraData.contains("camera")) {
+    return;
+  }
+
+  const auto& camData = cameraData["camera"];
+  ecs::CameraComponent camera;
+  camera.position = getVector3FromJson(camData, "position", {0, 5, 10});
+  camera.target = getVector3FromJson(camData, "target", {0, 0, 0});
+  camera.up = getVector3FromJson(camData, "up", {0, 1, 0});
+  camera.fov = camData.value("fov", 45.0f);
+  camera.projection = camData.value("projection", CAMERA_PERSPECTIVE);
+  camera.mode = camData.value("mode", CAMERA_FIRST_PERSON);
+  camera.isActive = camData.value("isActive", true);
+
+  ecsManager->addComponent(entity, camera);
+  auto cameraSystem = ecsManager->getSystem<ecs::CameraSystem>();
+  if (cameraSystem) {
+    cameraSystem->setActiveCamera(entity);
   }
 }
 

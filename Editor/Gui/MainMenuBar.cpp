@@ -1,7 +1,10 @@
 #include "MainMenuBar.hpp"
 #include <iostream>
 #include "Application.hpp"
+#include "GizmoComponent.hpp"
 #include "Gui.hpp"
+#include "NameComponent.hpp"
+#include "SelectionComponent.hpp"
 #include "Shape.hpp"
 
 void ui::MainMenuBar::draw(app::Application &app, ui::Gui &gui) {
@@ -44,6 +47,7 @@ void ui::MainMenuBar::draw(app::Application &app, ui::Gui &gui) {
         ImGui::MenuItem("Transform Info", nullptr, &gui._showTransform);
         ImGui::MenuItem("Materials Info", nullptr, &gui._showMaterials);
         ImGui::MenuItem("Scripts Info", nullptr, &gui._showScripts);
+        ImGui::MenuItem("Camera Info", nullptr, &gui._showCamera);
         ImGui::EndMenu();
       }
       ImGui::EndMenu();
@@ -70,6 +74,27 @@ void ui::MainMenuBar::draw(app::Application &app, ui::Gui &gui) {
         shape.createPlaneEntity({0.0f, 0.0f, 0.0f}, {10.0f, 10.0f},
                                 raylib::Color::White(), "New Plane",
                                 &app.getECSManager());
+      }
+      ImGui::Separator();
+      if (ImGui::MenuItem("Camera")) {
+        Entity cameraEntity = app.getECSManager().createEntity();
+
+        ecs::CameraComponent cameraComponent;
+        cameraComponent.position = raylib::Vector3(0.0f, 2.0f, 5.0f);
+        cameraComponent.target = raylib::Vector3(0.0f, 0.0f, 0.0f);
+        cameraComponent.up = raylib::Vector3(0.0f, 1.0f, 0.0f);
+        cameraComponent.fov = 45.0f;
+        cameraComponent.isActive = false;
+        app.getECSManager().addComponent(cameraEntity, cameraComponent);
+
+        ecs::NameComponent nameComp{"New Camera", "Camera"};
+        app.getECSManager().addComponent(cameraEntity, nameComp);
+
+        ecs::SelectionComponent selectionComp{false};
+        app.getECSManager().addComponent(cameraEntity, selectionComp);
+
+        ecs::GizmoComponent gizmoComp{};
+        app.getECSManager().addComponent(cameraEntity, gizmoComp);
       }
       ImGui::EndMenu();
     }

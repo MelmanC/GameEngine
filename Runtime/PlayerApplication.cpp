@@ -19,20 +19,6 @@ runtime::PlayerApplication::PlayerApplication(int width, int height,
   initECS();
   _scene.initialize(nullptr, _ecsManager.get());
   loadScene("./scene.json");
-
-  // Test Camera Component
-  ecs::CameraComponent cameraComponent;
-  cameraComponent.position = raylib::Vector3(0.0f, 5.0f, 10.0f);
-  cameraComponent.target = raylib::Vector3(0.0f, 0.0f, 0.0f);
-  cameraComponent.up = raylib::Vector3(0.0f, 1.0f, 0.0f);
-  cameraComponent.fov = 45.0f;
-  cameraComponent.projection = CAMERA_PERSPECTIVE;
-  cameraComponent.mode = CAMERA_FIRST_PERSON;
-  cameraComponent.isActive = true;
-  auto cameraEntity = _ecsManager->createEntity();
-  _ecsManager->addComponent<ecs::CameraComponent>(cameraEntity,
-                                                  cameraComponent);
-  _cameraSystem->setActiveCamera(cameraEntity);
 }
 
 void runtime::PlayerApplication::run() {

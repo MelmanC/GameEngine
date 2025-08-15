@@ -4,7 +4,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "CameraComponent.hpp"
 #include "ECSManager.hpp"
+#include "EditorOnlyComponent.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
 #include "Scene.hpp"
@@ -26,6 +28,9 @@ void jsonfile::Save::saveToJson(const scene::Scene& scene,
   std::vector<Entity> entities = scene.getAllEntities();
 
   for (Entity entity : entities) {
+    if (ecsManager->hasComponent<ecs::EditorOnlyComponent>(entity)) {
+      continue;
+    }
     saveEntityToJson(entity, jsonData, ecsManager);
   }
 
@@ -51,10 +56,14 @@ void jsonfile::Save::saveEntityToJson(const Entity& entity,
   saveShapeComponent(entity, entityData, ecsManager);
   saveNameComponent(entity, entityData, ecsManager);
   saveScriptComponent(entity, entityData, ecsManager);
-  auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
-  if (shape.type == ecs::ShapeType::MODEL) {
-    auto& model = ecsManager->getComponent<ecs::ModelComponent>(entity);
-    entityData["model"] = saveModelComponent(model);
+  saveCameraComponent(entity, entityData, ecsManager);
+
+  if (ecsManager->hasComponent<ecs::ShapeComponent>(entity)) {
+    auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
+    if (shape.type == ecs::ShapeType::MODEL) {
+      auto& model = ecsManager->getComponent<ecs::ModelComponent>(entity);
+      entityData["model"] = saveModelComponent(model);
+    }
   }
 
   jsonData["entities"].push_back(entityData);
@@ -65,6 +74,10 @@ void jsonfile::Save::saveTransformComponent(const Entity& entity,
                                             ecs::ECSManager* ecsManager) const {
   if (!ecsManager) {
     throw std::runtime_error("ECSManager is null");
+  }
+
+  if (!ecsManager->hasComponent<ecs::ShapeComponent>(entity)) {
+    return;
   }
 
   auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
@@ -134,6 +147,10 @@ void jsonfile::Save::saveRenderComponent(const Entity& entity,
     throw std::runtime_error("ECSManager is null");
   }
 
+  if (!ecsManager->hasComponent<ecs::RenderComponent>(entity)) {
+    return;
+  }
+
   auto& render = ecsManager->getComponent<ecs::RenderComponent>(entity);
   jsonData["render"] = {{"color",
                          {{"r", render.color.r},
@@ -148,6 +165,10 @@ void jsonfile::Save::saveShapeComponent(const Entity& entity,
                                         ecs::ECSManager* ecsManager) const {
   if (!ecsManager) {
     throw std::runtime_error("ECSManager is null");
+  }
+
+  if (!ecsManager->hasComponent<ecs::ShapeComponent>(entity)) {
+    return;
   }
 
   auto& shape = ecsManager->getComponent<ecs::ShapeComponent>(entity);
@@ -187,4 +208,32 @@ void jsonfile::Save::saveScriptComponent(const Entity& entity,
   auto& script = ecsManager->getComponent<ecs::ScriptComponent>(entity);
   jsonData["script"] = {{"scriptPath", script.scriptPath},
                         {"enabled", script.enabled}};
+}
+
+void jsonfile::Save::saveCameraComponent(const Entity& entity,
+                                         nlohmann::json& jsonData,
+                                         ecs::ECSManager* ecsManager) const {
+  if (!ecsManager) {
+    throw std::runtime_error("ECSManager is null");
+  }
+
+  if (!ecsManager->hasComponent<ecs::CameraComponent>(entity)) {
+    return;
+  }
+
+  auto& camera = ecsManager->getComponent<ecs::CameraComponent>(entity);
+  jsonData["camera"] = {
+      {"position",
+       {{"x", camera.position.x},
+        {"y", camera.position.y},
+        {"z", camera.position.z}}},
+      {"target",
+       {{"x", camera.target.x},
+        {"y", camera.target.y},
+        {"z", camera.target.z}}},
+      {"up", {{"x", camera.up.x}, {"y", camera.up.y}, {"z", camera.up.z}}},
+      {"fov", camera.fov},
+      {"projection", camera.projection},
+      {"mode", camera.mode},
+      {"isActive", camera.isActive}};
 }

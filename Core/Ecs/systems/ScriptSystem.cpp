@@ -131,6 +131,9 @@ void ecs::ScriptSystem::registerComponentAPI() {
 
   _inputAPI = std::make_unique<api::InputAPI>(_ecsManager);
   _inputAPI->registerInputTable(_lua);
+
+  _cameraAPI = std::make_unique<api::CameraAPI>(_ecsManager);
+  _cameraAPI->registerCameraTable(_lua);
 }
 
 bool ecs::ScriptSystem::loadScriptFile(const std::string& scriptPath,

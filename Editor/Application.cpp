@@ -3,6 +3,7 @@
 #include <rlImGui.h>
 #include <iostream>
 #include "ECSManager.hpp"
+#include "EditorOnlyComponent.hpp"
 #include "EntityManager.hpp"
 #include "GizmoComponent.hpp"
 #include "GizmoSystem.hpp"
@@ -66,14 +67,20 @@ void app::Application::initECS() {
   _ecsManager->registerComponent<ecs::SelectionComponent>();
   _ecsManager->registerComponent<ecs::GizmoComponent>();
   _ecsManager->registerComponent<ecs::ScriptComponent>();
+  _ecsManager->registerComponent<ecs::CameraComponent>();
+  _ecsManager->registerComponent<ecs::EditorOnlyComponent>();
 
   _renderSystem = _ecsManager->registerSystem<ecs::RenderSystem>();
   _selectionSystem = _ecsManager->registerSystem<ecs::SelectionSystem>();
   _gizmoSystem = _ecsManager->registerSystem<ecs::GizmoSystem>();
+  _cameraSystem = _ecsManager->registerSystem<ecs::CameraSystem>();
+  _cameraEditorSystem = _ecsManager->registerSystem<ecs::CameraEditorSystem>();
 
   _renderSystem->setECSManager(_ecsManager.get());
   _selectionSystem->setECSManager(_ecsManager.get());
   _gizmoSystem->setECSManager(_ecsManager.get());
+  _cameraSystem->setECSManager(_ecsManager.get());
+  _cameraEditorSystem->setECSManager(_ecsManager.get());
 
   Signature renderSignature;
   renderSignature.set(_ecsManager->getComponentType<ecs::RenderComponent>());
@@ -89,6 +96,12 @@ void app::Application::initECS() {
   gizmoSignature.set(_ecsManager->getComponentType<ecs::GizmoComponent>());
   gizmoSignature.set(_ecsManager->getComponentType<ecs::SelectionComponent>());
   _ecsManager->setSystemeSignature<ecs::GizmoSystem>(gizmoSignature);
+
+  Signature cameraSignature;
+  cameraSignature.set(_ecsManager->getComponentType<ecs::CameraComponent>());
+  _ecsManager->setSystemeSignature<ecs::CameraSystem>(cameraSignature);
+
+  _ecsManager->setSystemeSignature<ecs::CameraEditorSystem>(cameraSignature);
 }
 
 void app::Application::run() {
@@ -110,6 +123,7 @@ void app::Application::update() {
   _renderSystem->update(deltaTime);
   _selectionSystem->update(deltaTime);
   _gizmoSystem->update(deltaTime);
+  _cameraEditorSystem->update(deltaTime);
 }
 
 void app::Application::render() {

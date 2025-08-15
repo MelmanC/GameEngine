@@ -12,12 +12,12 @@ J = 74
 Y = 89
 
 function script.OnStart(entity)
-  print("Cube script started.")
+  print("Camera script started.")
   print("Entity name: " .. Entity.getName(entity))
 end
 
 function script.OnUpdate(entity, deltaTime)
-  local pos = Transform.getPosition(entity)
+  local pos = Camera.getPosition(entity)
   local moveSpeed = 3 * deltaTime
   local jumpSpeed = 5 * deltaTime
 
@@ -36,7 +36,7 @@ function script.OnUpdate(entity, deltaTime)
     pos.y = pos.y + jumpSpeed
   end
 
-  Transform.setPosition(entity, pos.x, pos.y, pos.z)
+  Camera.setPosition(entity, pos.x, pos.y, pos.z)
 end
 
 function script.OnDestroy(entity)

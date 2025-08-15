@@ -1,5 +1,6 @@
 #include "MainPropertiesPanel.hpp"
 #include "Application.hpp"
+#include "CameraEditorSystem.hpp"
 #include "ECSManager.hpp"
 #include "NameComponent.hpp"
 #include "RenderComponent.hpp"
@@ -22,15 +23,132 @@ void ui::MainPropertiesPanel::draw(camera::CameraEditor &camera,
     } else {
       Entity selectedEntity = app.getScene().getSelectedEntity();
 
-      drawEntityInfo(selectedEntity, &ecsManager, gui);
-      drawTransformInfo(selectedEntity, &ecsManager, gui);
-      drawRenderInfo(selectedEntity, &ecsManager, gui);
-      drawScriptInfo(selectedEntity, &ecsManager, gui);
+      auto linkedCamera = app.getECSManager()
+                              .getSystem<ecs::CameraEditorSystem>()
+                              ->getCameraFromEditor(selectedEntity);
+
+      if (linkedCamera != 0) {
+        drawCameraComponentInfo(selectedEntity, linkedCamera, &ecsManager, gui,
+                                app);
+      } else {
+        drawEntityInfo(selectedEntity, &ecsManager, gui);
+        drawTransformInfo(selectedEntity, &ecsManager, gui);
+        drawRenderInfo(selectedEntity, &ecsManager, gui);
+        drawScriptInfo(selectedEntity, &ecsManager, gui);
+      }
 
       ImGui::Separator();
     }
   }
   ImGui::End();
+}
+
+void ui::MainPropertiesPanel::drawCameraComponentInfo(
+    Entity visualEntity, Entity cameraEntity, ecs::ECSManager *ecsManager,
+    ui::Gui &gui, app::Application &app) {
+  if (!ecsManager)
+    return;
+
+  if (ImGui::CollapsingHeader(
+          "Camera", gui._showCamera ? ImGuiTreeNodeFlags_DefaultOpen : 0)) {
+    auto &visualName =
+        ecsManager->getComponent<ecs::NameComponent>(visualEntity);
+    auto &cameraName =
+        ecsManager->getComponent<ecs::NameComponent>(cameraEntity);
+
+    if (ImGui::BeginTable("Camera", 2, ImGuiTableFlags_SizingFixedFit)) {
+      ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed,
+                              50.0f);
+      ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+
+      gui.guiAlign("Name");
+      char name[64];
+      std::strncpy(name, cameraName.name.c_str(), sizeof(name) - 1);
+      name[sizeof(name) - 1] = '\0';
+      if (ImGui::InputText("##Name", name, sizeof(name))) {
+        ecsManager->getComponent<ecs::NameComponent>(cameraEntity).name = name;
+        visualName.name = std::string(name) + " (Visualization)";
+      }
+
+      ImGui::EndTable();
+    }
+    ImGui::Spacing();
+  }
+
+  if (ImGui::CollapsingHeader("Camera Settings",
+                              ImGuiTreeNodeFlags_DefaultOpen)) {
+    auto &cameraComp =
+        ecsManager->getComponent<ecs::CameraComponent>(cameraEntity);
+
+    if (ImGui::BeginTable("CameraTable", 2, ImGuiTableFlags_SizingFixedFit)) {
+      ImGui::TableSetupColumn("Property", ImGuiTableColumnFlags_WidthFixed,
+                              50.0f);
+      ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
+
+      gui.guiAlign("Position");
+      if (ImGui::InputFloat3("##CameraPosition", &cameraComp.position.x)) {
+      }
+
+      gui.guiAlign("Target");
+      ImGui::InputFloat3("##CameraTarget", &cameraComp.target.x);
+
+      gui.guiAlign("Up");
+      ImGui::InputFloat3("##CameraUp", &cameraComp.up.x);
+
+      gui.guiAlign("FOV");
+      ImGui::SliderFloat("##CameraFOV", &cameraComp.fov, 10.0f, 120.0f,
+                         "%.1f°");
+
+      gui.guiAlign("Projection");
+      const char *projectionTypes[] = {"Perspective", "Orthographic"};
+      int currentProjection = cameraComp.projection;
+      if (ImGui::Combo("##CameraProjection", &currentProjection,
+                       projectionTypes, 2)) {
+        cameraComp.projection = (CameraProjection)currentProjection;
+      }
+
+      gui.guiAlign("Active");
+      bool wasActive = cameraComp.isActive;
+      if (ImGui::Checkbox("##CameraActive", &cameraComp.isActive)) {
+        if (cameraComp.isActive && !wasActive) {
+          auto entities = app.getScene().getAllEntities();
+          for (Entity otherEntity : entities) {
+            if (otherEntity != cameraEntity &&
+                ecsManager->hasComponent<ecs::CameraComponent>(otherEntity)) {
+              ecsManager->getComponent<ecs::CameraComponent>(otherEntity)
+                  .isActive = false;
+            }
+          }
+          app.getECSManager().getSystem<ecs::CameraSystem>()->setActiveCamera(
+              cameraEntity);
+        }
+      }
+
+      ImGui::EndTable();
+    }
+
+    ImGui::Spacing();
+
+    if (ImGui::Button("Align Editor to Camera")) {
+      auto &editorCamera = app.getCamera().getCamera();
+      editorCamera.position = cameraComp.position;
+      editorCamera.target = cameraComp.target;
+      editorCamera.up = cameraComp.up;
+      editorCamera.fovy = cameraComp.fov;
+    }
+
+    if (ImGui::Button("Align Camera to Editor")) {
+      auto &editorCamera = app.getCamera().getCamera();
+      cameraComp.position = editorCamera.position;
+      cameraComp.target = editorCamera.target;
+      cameraComp.up = editorCamera.up;
+      cameraComp.fov = editorCamera.fovy;
+    }
+
+    ImGui::Spacing();
+
+    drawScriptInfo(cameraEntity, ecsManager, gui);
+  }
 }
 
 void ui::MainPropertiesPanel::drawRenderInfo(Entity entity,
