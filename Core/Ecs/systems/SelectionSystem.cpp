@@ -2,8 +2,7 @@
 #include "ECSManager.hpp"
 #include "SelectionComponent.hpp"
 
-void ecs::SelectionSystem::update(float deltaTime) {
-  (void)deltaTime;
+void ecs::SelectionSystem::update(__attribute__((unused)) float deltaTime) {
 }
 
 void ecs::SelectionSystem::selectEntity(Entity entity) {

@@ -5,8 +5,7 @@
 #include "SelectionComponent.hpp"
 #include "TransformHelper.hpp"
 
-void ecs::GizmoSystem::update(float deltaTime) {
-  (void)deltaTime;
+void ecs::GizmoSystem::update(__attribute__((unused)) float deltaTime) {
 }
 
 void ecs::GizmoSystem::drawGizmos() {

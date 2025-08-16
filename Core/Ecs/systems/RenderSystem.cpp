@@ -7,8 +7,7 @@
 #include "ShapeComponent.hpp"
 #include "TransformComponent.hpp"
 
-void ecs::RenderSystem::update(float deltaTime) {
-  (void)deltaTime;
+void ecs::RenderSystem::update(__attribute__((unused)) float deltaTime) {
   render();
 }
 

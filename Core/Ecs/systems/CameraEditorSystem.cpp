@@ -25,6 +25,7 @@ void ecs::CameraEditorSystem::update(__attribute__((unused)) float deltaTime) {
   }
 
   auto it = _cameraToEditor.begin();
+
   while (it != _cameraToEditor.end()) {
     Entity cameraEntity = it->first;
     Entity visualEntity = it->second;
@@ -89,8 +90,7 @@ Entity ecs::CameraEditorSystem::createCameraShape(
   _ecsManager->addComponent(entity, ecs::ShapeComponent{ecs::ShapeType::CUBE});
   _ecsManager->addComponent(
       entity, ecs::NameComponent{"Camera Visualization", "EditorCamera"});
-  _ecsManager->addComponent(
-      entity, ecs::EditorOnlyComponent{false, "camera_visualization"});
+  _ecsManager->addComponent(entity, ecs::EditorOnlyComponent{});
   _ecsManager->addComponent(entity, ecs::SelectionComponent{false});
   _ecsManager->addComponent(entity, ecs::GizmoComponent{});
   return entity;

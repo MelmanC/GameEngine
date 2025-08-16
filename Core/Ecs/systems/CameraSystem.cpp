@@ -1,8 +1,6 @@
 #include "CameraSystem.hpp"
 
-void ecs::CameraSystem::update(float deltaTime) {
-  (void)deltaTime;
-
+void ecs::CameraSystem::update(__attribute__((unused)) float deltaTime) {
   auto& cameraComponent =
       _ecsManager->getComponent<CameraComponent>(_activeCamera);
 
